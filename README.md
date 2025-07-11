@@ -37,21 +37,25 @@ Version Control: Git, GitHub workflows
 Development Tools: VS Code, Docker (learning)
 
 🎯 Featured Projects
+
 📊 Manufacturing Analytics Dashboard
 Demonstrating real-world application of data analysis in mechanical engineering
-A comprehensive analytics solution that processes manufacturing data using MySQL, creates insightful visualizations in PowerBI, and provides actionable recommendations for process optimization. This project showcases how data-driven insights can improve efficiency and reduce costs in manufacturing environments.
+A comprehensive analytics solution that processes manufacturing data using MySQL, creates insightful visualizations in PowerBI, and provides actionable recommendations for process optimization. This project showcases how data-driven insights can improve efficiency and reduce costs in manufacturing environments. 
 Key Features: Automated data processing, interactive dashboards, predictive maintenance insights
 Technologies: MySQL, PowerBI, Python, Statistical Analysis
+
 🎲 Interactive Ludo Game
 Bridging engineering logic with engaging user experiences
 A fully functional web-based Ludo game that demonstrates clean code architecture, game state management, and user interface design. Starting from console-based logic and evolving to a polished web application, this project shows progressive development and attention to user experience.
 Key Features: Multiplayer support, responsive design, game state persistence
 Technologies: HTML5 Canvas, JavaScript, WebSocket API, CSS3
+
 🏆 Quidditch Manager (In Development)
 Combining sports management with data analytics
 An ambitious multiplayer web application that simulates the management of Quidditch teams. This project demonstrates full-stack development skills, database design, and the application of statistical modeling to create engaging gameplay mechanics.
 Planned Features: Team management, player statistics, league systems, predictive game outcomes
 Technologies: Node.js, MySQL, HTML5, CSS3, JavaScript, Statistical Modeling
+
 🌱 Learning Philosophy
 I approach every project as a learning opportunity. My repositories document not just the final solutions, but the thought processes, challenges encountered, and lessons learned along the way. I believe that sharing knowledge strengthens the entire community, which is why I emphasize comprehensive documentation and clear explanations in all my work.
 Each project builds upon previous learning while introducing new concepts. My data analysis projects inform better game balancing decisions, while my game development work helps me create more engaging data visualization interfaces.
