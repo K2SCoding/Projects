@@ -2,6 +2,7 @@
 
 Hi there! 👋 I'm K2!
 🔧 Mechanical Engineer | 📊 Data Analyst | 🎮 Game Enthusiast
+
 Welcome to my GitHub profile! I'm a mechanical engineer who believes that data-driven decision making and creative problem-solving go hand in hand. I transform complex engineering data into actionable insights while building engaging digital experiences that make technology more accessible and fun.
 
 🚀 What I'm Currently Working On
