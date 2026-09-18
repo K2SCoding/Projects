@@ -27,8 +27,18 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Accept Android SDK licenses
+        # ubuntu-latest runners ship with an Android SDK preinstalled and
+        # ANDROID_HOME/ANDROID_SDK_ROOT already exported. We only need to
+        # accept the licenses here; the Gradle Android plugin auto-downloads
+        # whatever compileSdk/build-tools packages it actually needs during
+        # the build. (android-actions/setup-android@v3 tries to install the
+        # legacy "tools" SDK package as part of its own setup, which Google
+        # removed from the SDK repository — that fails the step outright.)
+        run: |
+          SDKMANAGER="$(command -v sdkmanager || find "$ANDROID_HOME" "$ANDROID_SDK_ROOT" -type f -name sdkmanager 2>/dev/null | sort -r | head -n1)"
+          echo "sdkmanager: $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
 
       - name: Install Node
         uses: actions/setup-node@v4
@@ -43,6 +53,9 @@ jobs:
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
+
+      - name: Point Gradle at the runner's SDK
+        run: echo "sdk.dir=${ANDROID_HOME:-$ANDROID_SDK_ROOT}" > android/local.properties
 
       - name: Build debug APK
         working-directory: broomstick-league/android-app/android
