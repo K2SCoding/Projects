@@ -1,0 +1,56 @@
+name: Broomstick League — Android build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "broomstick-league/**"
+      - ".github/workflows/android-build.yml"
+  pull_request:
+    paths:
+      - "broomstick-league/**"
+      - ".github/workflows/android-build.yml"
+  workflow_dispatch: {}
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: broomstick-league/android-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Sync Capacitor (copies the web build into the native shell)
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build debug APK
+        working-directory: broomstick-league/android-app/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: broomstick-league-debug-apk
+          path: broomstick-league/android-app/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

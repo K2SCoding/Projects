@@ -1,0 +1,2794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1620">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Broomstick">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="icon" href="./icons/icon-192.png">
+<title>Broomstick League — Manager</title>
+<style>
+:root{--ink:#0F1620;--slate:#161F2B;--raise:#1D2836;--line:#2A3949;--bone:#E8E3D9;--mute:#8698AA;
+--gold:#C9A227;--gold-dim:#8C731F;--green:#5FA773;--red:#C4614F;--amber:#D89A3E;--sky:#6FA8C7;
+--mono:ui-monospace,"SF Mono",Menlo,monospace;--display:Georgia,serif;--r:8px;
+--sat:env(safe-area-inset-top,0px);--sar:env(safe-area-inset-right,0px);
+--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{overscroll-behavior-y:none}
+body{margin:0;background:var(--ink);color:var(--bone);overscroll-behavior-y:none;
+ -webkit-text-size-adjust:100%;text-size-adjust:100%;
+ font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+#app{max-width:760px;margin:0 auto;
+ padding:calc(16px + var(--sat)) calc(14px + var(--sar)) calc(96px + var(--sab)) calc(14px + var(--sal))}
+button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+input[type=range]{touch-action:pan-x}
+h1{font-family:var(--display);font-weight:400;font-size:26px;margin:0 0 2px}
+h2{font-family:var(--display);font-weight:400;font-size:21px;margin:0 0 3px}
+h3{font-family:var(--display);font-weight:400;font-size:17px;margin:0 0 3px}
+.sub{color:var(--mute);font-size:13.5px;margin:0 0 18px}
+.lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+ color:var(--mute);margin:20px 0 8px}
+.screen{display:none}.screen.on{display:block}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:14px;color:var(--bone);background:var(--raise);
+ border:1px solid var(--line);border-radius:var(--r);padding:9px 14px;cursor:pointer;
+ transition:border-color .15s,background .15s;text-align:left}
+button:hover:not(:disabled){border-color:var(--gold-dim)}
+button.on{border-color:var(--gold);color:var(--gold);background:rgba(201,162,39,.08)}
+button.mini{padding:4px 10px;font-size:12px;border-radius:6px}
+button:disabled{opacity:.38;cursor:not-allowed}
+button.wide{display:block;width:100%}
+nav{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px;padding-bottom:14px;
+ border-bottom:1px solid var(--line)}
+nav button{padding:5px 10px;font-size:12px;font-family:var(--mono);letter-spacing:.04em}
+.card{background:var(--slate);border:1px solid var(--line);border-radius:var(--r);
+ padding:14px 15px;margin-bottom:12px}
+.card .cs{color:var(--mute);font-size:12.5px;margin:0 0 10px}
+.pl{display:flex;align-items:center;gap:10px;padding:9px 12px;margin-bottom:5px;
+ background:var(--slate);border:1px solid var(--line);border-radius:var(--r);cursor:pointer}
+.pl:hover{border-color:var(--gold-dim)}
+.pl.on{border-color:var(--gold);background:rgba(201,162,39,.06)}
+.pl.bench{opacity:.62}
+.pl .nm{flex:1;font-weight:500;font-size:13.5px;min-width:0}
+.pl .nm i{font-style:normal;color:var(--amber);font-size:10.5px;margin-left:6px}
+.pl .nm u{text-decoration:none;color:var(--sky);font-size:10.5px;margin-left:6px}
+.pl .nm s{text-decoration:none;color:var(--red);font-size:10.5px;margin-left:6px}
+.pl .pos{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;
+ color:var(--mute);border:1px solid var(--line);border-radius:4px;padding:2px 6px}
+.pl .rt{font-family:var(--mono);font-size:15px;min-width:26px;text-align:right}
+.pl .ag{font-family:var(--mono);font-size:11.5px;color:var(--sky);min-width:30px;text-align:right}
+.pl .mo{font-family:var(--mono);font-size:11.5px;min-width:30px;text-align:right}
+.pl .vl{font-family:var(--mono);font-size:11.5px;color:var(--gold-dim);min-width:56px;text-align:right}
+.grid{display:grid;grid-template-columns:1fr auto;gap:5px 12px;font-size:13.5px}
+.grid .k{color:var(--mute)}
+.grid .v{font-family:var(--mono);text-align:right}
+.grid .pos{color:var(--green)}.grid .neg{color:var(--red)}
+.grid .tot{border-top:1px solid var(--line);padding-top:6px;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+ color:var(--mute);text-align:right;padding:6px 4px;font-weight:400;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+td{padding:7px 4px;text-align:right;border-bottom:1px solid rgba(42,57,73,.5)}
+tr.me td{color:var(--gold)}
+.board{display:flex;align-items:center;justify-content:center;gap:18px;
+ background:var(--slate);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.board .sc{font-family:var(--mono);font-size:30px}
+.board .tm{font-size:13px;color:var(--mute);text-align:center;flex:1}
+.board .clk{font-family:var(--mono);font-size:11px;color:var(--mute);text-align:center}
+.board .clk b{display:block;color:var(--gold);font-size:17px;font-weight:400}
+.live{min-height:56px;display:flex;align-items:center;background:var(--slate);
+ border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;font-size:14px;color:#B9C4CF}
+.live .min{font-family:var(--mono);font-size:11.5px;color:var(--gold-dim);margin-right:10px}
+.hl{max-height:230px;overflow-y:auto}
+.hl div{font-size:12.5px;padding:6px 0;border-bottom:1px solid rgba(42,57,73,.5);color:#AFBCC8}
+.hl b{color:var(--bone);font-weight:500}
+.hl .goal{color:var(--green)}.hl .snitch{color:var(--gold)}
+.hl .inj{color:var(--red)}.hl .foul{color:var(--amber)}
+.empty{color:var(--mute);font-size:13px;font-style:italic}
+.acts{display:flex;gap:8px;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+.state{position:fixed;left:0;right:0;bottom:0;background:rgba(15,22,32,.97);
+ border-top:1px solid var(--line);
+ padding:8px calc(14px + var(--sar)) calc(8px + var(--sab)) calc(14px + var(--sal));
+ font-family:var(--mono);font-size:10.5px;
+ color:var(--mute);line-height:1.7;max-height:calc(78px + var(--sab));overflow-y:auto}
+.state b{color:var(--bone);font-weight:400}.state .k{color:var(--gold-dim)}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:99;
+ padding:16px;overflow-y:auto}
+.modal.on{display:block}
+.modal .box{max-width:600px;margin:40px auto;background:var(--slate);border:1px solid var(--gold);
+ border-radius:var(--r);padding:18px}
+.modal .q{font-size:14px;line-height:1.6;margin:0 0 16px;color:#CDD6E0}
+.opt{display:block;width:100%;margin-bottom:8px;padding:12px}
+.opt .say{display:block;color:var(--amber);font-size:13.5px;line-height:1.45}
+.opt .eff{display:block;margin-top:5px;font-family:var(--mono);font-size:10.5px;color:var(--mute)}
+.bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;background:var(--gold)}
+.tag{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;
+ text-transform:uppercase;border:1px solid var(--line);border-radius:4px;padding:2px 6px;
+ color:var(--mute);margin-right:5px}
+.tag.won{border-color:var(--gold-dim);color:var(--gold)}
+.paper{background:
+ radial-gradient(circle at 18% 12%,rgba(160,140,100,.10) 0 38%,transparent 39%),
+ radial-gradient(circle at 78% 62%,rgba(150,125,90,.09) 0 30%,transparent 31%),
+ #EFE7D6;
+ color:#1C1A16;border-radius:var(--r);padding:16px 14px;
+ border:1px solid #C9BFA8;box-shadow:0 2px 0 #C9BFA8;
+ outline:1px solid #EFE7D6;outline-offset:-5px}
+.paper .orn{text-align:center;font-size:12px;color:#7A2E1E;letter-spacing:.5em;margin:2px 0 0}
+.paper .lead::first-letter{float:left;font-family:Georgia,serif;font-size:42px;line-height:.86;
+ padding:3px 7px 0 0;color:#7A2E1E}
+.paper .mast{font-family:Georgia,serif;font-size:29px;text-align:center;letter-spacing:.02em;
+ line-height:1.1;border-bottom:3px double #1C1A16;padding-bottom:8px}
+.paper .dline{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;
+ text-transform:uppercase;letter-spacing:.09em;padding:5px 0;border-bottom:1px solid #1C1A16;
+ margin-bottom:14px;color:#4A443A;flex-wrap:wrap;gap:6px}
+.paper h3{font-family:Georgia,serif;font-size:21px;margin:0 0 5px;line-height:1.18;color:#1C1A16}
+.paper .kick{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+ color:#7A2E1E;margin-bottom:3px}
+.paper .standfirst{font-size:13.5px;line-height:1.5;color:#3A352C;margin:0 0 14px}
+.paper .cols{display:flex;gap:16px;flex-wrap:wrap}
+.paper .col{flex:1;min-width:190px}
+.paper .rule{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+ border-top:1px solid #1C1A16;border-bottom:1px solid #1C1A16;padding:4px 0;margin:0 0 9px;
+ color:#4A443A}
+.paper .res{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:4px 0;
+ border-bottom:1px dotted #C0B69F}
+.paper .res b{font-family:var(--mono);font-weight:500}
+.paper .res.mine{background:#E2D8BF;margin:0 -5px;padding:4px 5px}
+.paper blockquote{margin:0 0 11px;font-size:13.5px;line-height:1.5;font-style:italic;color:#2A251E}
+.paper blockquote cite{display:block;font-style:normal;font-size:11px;color:#6A6154;margin-top:3px}
+.paper .gossip{font-size:12.5px;line-height:1.5;color:#3A352C;border-left:3px solid #7A2E1E;
+ padding-left:9px}
+.paper .tbl{width:100%;font-size:12px;border-collapse:collapse}
+.paper .tbl td{padding:3px 2px;border-bottom:1px dotted #C0B69F;text-align:right;color:#1C1A16}
+.paper .tbl td:first-child{text-align:left}
+.paper .tbl tr.mine td{font-weight:700}
+.paper .foot{text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+ text-transform:uppercase;color:#6A6154;border-top:1px solid #1C1A16;margin-top:14px;padding-top:7px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<nav id="nav"></nav>
+
+<section class="screen" data-s="mode">
+  <h1>Broomstick League</h1>
+  <p class="sub">A quidditch club, a ledger, and twenty weeks to prove something.</p>
+  <button class="wide" data-act="mode" data-v="solo" style="margin-bottom:10px">
+    <b>Solo campaign</b><br><span style="color:var(--mute);font-size:12.5px">
+    Offline. Press conferences, dressing-room drama, disciplinary hearings, endless seasons.</span></button>
+  <button class="wide" data-act="mode" data-v="sandbox" style="margin-bottom:10px">
+    <b>Sandbox</b><span class="tag" style="margin-left:8px">for testing</span><br>
+    <span style="color:var(--mute);font-size:12.5px">
+    No contract, reset whenever you like, and every match rolls fresh instead of replaying
+    the same seeded result.</span></button>
+  <button class="wide" data-act="mode" data-v="multi">
+    <b>Join a season</b><span class="tag" style="margin-left:8px">needs server</span><br>
+    <span style="color:var(--mute);font-size:12.5px">
+    Four human managers, locked matchday windows, deterministic results.</span></button>
+</section>
+
+<section class="screen" data-s="name">
+  <h1>Broomstick League</h1>
+  <p class="sub">Found a club. The name is on the gates from here on \u2014 choose carefully,
+  because it cannot be changed.</p>
+  <p class="lbl">Club name</p>
+  <input id="cname" maxlength="28" placeholder="Hollowbeck Harriers"
+    style="width:100%;font:inherit;font-size:17px;color:var(--bone);background:var(--raise);
+    border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:8px">
+  <div class="row">
+    <button class="mini" data-act="rollname">Suggest a name</button>
+    <button data-act="namedone">Confirm name &rarr;</button>
+  </div>
+  <p class="cs" id="nameWarn" style="margin-top:14px"></p>
+</section>
+
+<section class="screen" data-s="team">
+  <h2 id="archHead">Choose your squad</h2>
+  <p class="sub">Which side do you inherit? This decides the players you start with and
+  the club whose place you take in the league. You are contracted for a full season once you sign.</p>
+  <div id="clubs"></div>
+</section>
+
+<section class="screen" data-s="comps">
+  <h2 id="compHead">Competitions</h2>
+  <p class="sub" id="compSub"></p>
+  <div id="compNav" class="row" style="margin-bottom:14px"></div>
+  <div id="compBody"></div>
+  <p class="lbl">This week</p><div class="card" id="fixture"></div>
+</section>
+
+<section class="screen" data-s="media">
+  <div id="paper"></div>
+</section>
+
+<section class="screen" data-s="squad">
+  <h2 id="squadHead">Squad</h2>
+  <p class="sub">First seven start. Tap a player for their skills, ceiling and contract.</p>
+  <div id="squadStats" class="card"></div>
+  <p class="lbl">Starting seven</p><div id="xi"></div>
+  <p class="lbl">Reserves</p><div id="bench"></div>
+  <div id="pdet"></div>
+</section>
+
+<section class="screen" data-s="market">
+  <h2>Transfer market</h2>
+  <p class="sub">Fees are cash up front. Free agents cost only wages.</p>
+  <p class="lbl">For sale</p><div id="mkt"></div>
+  <p class="lbl">Free agents</p><div id="fas"></div>
+</section>
+
+<section class="screen" data-s="academy">
+  <h2>Academy</h2>
+  <p class="sub">Youth intake. Scouting sharpens the potential estimate.</p>
+  <div id="acadArt" style="margin-bottom:14px"></div>
+  <div id="acad"></div>
+  <p class="lbl">Prospects</p><div id="pros"></div>
+</section>
+
+<section class="screen" data-s="ground">
+  <h2 id="groundHead">Ground &amp; facilities</h2>
+  <p class="sub">Seats sell tickets. Facilities quietly win seasons.</p>
+  <div id="stadArt" style="margin-bottom:14px"></div>
+  <div id="stad"></div>
+  <p class="lbl">Facilities</p><div id="facs"></div>
+  <p class="lbl">Matchday trade</p>
+  <p class="sub" id="comSum"></p>
+  <div id="coms"></div>
+</section>
+
+<section class="screen" data-s="office">
+  <h2>Office</h2>
+  <p class="sub">The ledger, the desk, the shelf.</p>
+  <div id="officeArt" style="margin-bottom:14px"></div>
+  <p class="lbl">Weekly projection</p>
+  <div class="card"><div class="grid" id="ledger"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="mini" data-act="price" data-v="-1">Cheaper ticket</button>
+      <span class="tag" id="priceTag"></span>
+      <button class="mini" data-act="price" data-v="1">Dearer ticket</button>
+    </div></div>
+  <p class="lbl">Shirt sponsor</p><div id="spons"></div>
+  <p class="lbl">Offers on the desk</p><div id="offers"></div>
+  <p class="lbl">Trophy cabinet</p><div class="card" id="cab"></div>
+</section>
+
+<section class="screen" data-s="tactics">
+  <h2>Tactics</h2>
+  <p class="sub">Set it before kickoff. It locks once the whistle goes.</p>
+  <div id="h2h" style="margin-bottom:16px"></div>
+  <div id="pitch" style="margin-bottom:16px"></div>
+  <p class="lbl">Formation</p><div class="row" id="forms"></div>
+  <p class="lbl">Seeker focus <span id="sfNote" style="text-transform:none;letter-spacing:0"></span></p>
+  <input type="range" id="sf" min="1" max="5" step="1" style="width:100%;accent-color:var(--gold)">
+  <p class="lbl">Aggression</p>
+  <div class="row"><button data-act="aggr" id="aggrBtn">Aggression: <span id="agv"></span></button></div>
+  <p class="lbl">Chaser tempo</p><div class="row" id="tempos"></div>
+  <p class="lbl">Beaters aim at</p><div class="row" id="btargets"></div>
+  <p class="lbl">Seeker instruction</p><div class="row" id="shadowRow"></div>
+  <p class="lbl">The official</p><div id="bribeRow"></div>
+  <p class="lbl">Snitch rules</p><div class="row" id="snitch"></div>
+</section>
+
+<section class="screen" data-s="training">
+  <h2>Training week</h2>
+  <p class="sub">One focus. The young grow, the old hold on.</p>
+  <div class="row" id="trainBtns" style="margin-bottom:6px"></div>
+  <p class="lbl">Projected development</p><div id="dev"></div>
+</section>
+
+<section class="screen" data-s="match">
+  <h2>Match day</h2>
+  <p class="sub" id="msub"></p>
+  <div id="venue" style="margin-bottom:12px"></div>
+  <div class="board">
+    <div class="tm" id="hn"></div><div class="sc" id="hs">0</div>
+    <div class="clk">min<b id="mn">0</b></div>
+    <div class="sc" id="as">0</div><div class="tm" id="an"></div>
+  </div>
+  <div id="sheet" style="margin-bottom:12px"></div>
+  <div class="live"><span class="min" id="lmin">—</span><span id="ltxt">Teams in the air.</span></div>
+  <div class="row" style="margin-top:12px">
+    <button data-act="play" id="pb">Kick off</button>
+    <button data-act="speed">Speed: <span id="sp">1×</span></button>
+    <button data-act="rewatch">Rewatch</button>
+  </div>
+  <p class="lbl">Highlights</p>
+  <div class="hl" id="hl"><div class="empty">Goals, cards, injuries and the snitch collect here.</div></div>
+</section>
+
+<div class="state" id="state"></div>
+</div>
+
+<div class="modal" id="modal"><div class="box">
+  <h3 id="mTitle"></h3><p class="q" id="mQ"></p><div id="mOpts"></div>
+</div></div>
+
+<script>
+(function(){
+"use strict";
+/* ================= util ================= */
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const money=n=>(n<0?"-":"")+"£"+Math.abs(Math.round(n)).toLocaleString();
+const signed=n=>(n>=0?"+":"-")+"£"+Math.abs(Math.round(n)).toLocaleString();
+const surname=p=>p.n.split(" ").slice(-1)[0];
+let uid=0;
+/* mulberry32 seeded rng — deterministic replays and fair multiplayer */
+function SeededRandom(seed){let a=seed>>>0;this.next=function(){a|=0;a=a+0x6D2B79F5|0;
+  let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+
+/* ================= storage abstraction ================= */
+function LocalStore(){
+  this.load=function(k){try{const r=localStorage.getItem("bl_"+k);return r?JSON.parse(r):null;}catch(e){return null;}};
+  this.save=function(k,v){try{localStorage.setItem("bl_"+k,JSON.stringify(v));return true;}catch(e){return false;}};
+  this.wipe=function(k){try{localStorage.removeItem("bl_"+k);}catch(e){}};
+}
+/* APIStore mirrors LocalStore's shape. Endpoints documented in README; not wired in v1. */
+function APIStore(base){
+  this.base=base||"/api";
+  this.load=function(k){return fetch(this.base+"/club/"+k).then(r=>r.json()).then(d=>d.st);};
+  this.save=function(k,v){return fetch(this.base+"/club/"+k,{method:"PUT",
+    headers:{"Content-Type":"application/json"},body:JSON.stringify({st:v})}).then(r=>r.ok);};
+  this.wipe=function(){return Promise.resolve();};
+}
+let store=new LocalStore();
+
+/* ================= data ================= */
+const SKILLS=["pas","sho","see","kee","phy","men","tac","spd","exp"];
+const SKNAME={pas:"Passing",sho:"Shooting",see:"Seeking",kee:"Keeping",phy:"Physique",
+  men:"Mentality",tac:"Tactics",spd:"Speed",exp:"Experience"};
+/* rating weights per position — the same nine skills read differently by role */
+const W={
+  Chaser:{pas:.22,sho:.24,see:.02,kee:.02,phy:.12,men:.10,tac:.12,spd:.14,exp:.02},
+  Beater:{pas:.06,sho:.06,see:.02,kee:.02,phy:.34,men:.08,tac:.14,spd:.26,exp:.02},
+  Keeper:{pas:.10,sho:.02,see:.02,kee:.40,phy:.14,men:.14,tac:.12,spd:.04,exp:.02},
+  Seeker:{pas:.04,sho:.04,see:.40,kee:.02,phy:.06,men:.16,tac:.06,spd:.20,exp:.02}};
+const POS_ORDER={Keeper:0,Beater:1,Chaser:2,Seeker:3};
+const NEED={Keeper:1,Beater:2,Chaser:3,Seeker:1};
+const byPos=(a,b)=>POS_ORDER[a.p]-POS_ORDER[b.p]||rate(b)-rate(a);
+
+/* Each archetype doubles as an AI club. Picking one means you take that slot in the
+   league and inherit that kind of side; the other three become your rivals. */
+const SQUAD_TEMPLATE=[["Keeper",1],["Keeper",0],["Beater",1],["Beater",1],["Beater",0],
+ ["Chaser",1],["Chaser",1],["Chaser",1],["Chaser",0],["Seeker",1],["Seeker",0]];
+const CLUBS=[
+ {id:"thorn",n:"Thornwood Thunder",budget:180000,tier:3,
+  style:"Bruisers",arch:"castle",col:"#8A5A2B",col2:"#E8C88A",ground:"The Hollow",boss:"Ormond Blackwood",blurb:"Two of the meanest beaters in the division and very little craft in front of goal. Cheap squad, big fists, you will win ugly or not at all.",bias:{Keeper:76,Beater:86,Chaser:70,Seeker:70},
+  note:"Bruising beaters, blunt up front.",ai:{ag:.85,sf:2,form:"Parkin's Pincer",spend:.5}},
+ {id:"ashfen",n:"Ashfen Alchemists",budget:220000,tier:3,
+  style:"Tempo",arch:"modern",col:"#3E7CA6",col2:"#DCEEF9",ground:"Alembic Park",boss:"Selwyn Marchbanks",blurb:"Quick chasers, a good seeker, and no discipline whatsoever. Scores freely, concedes freely, picks up injuries.",bias:{Keeper:75,Beater:74,Chaser:82,Seeker:79},
+  note:"High tempo, thin discipline.",ai:{ag:.55,sf:3,form:"Hawkshead",spend:.7}},
+ {id:"dire",n:"Direstone Drakes",budget:250000,tier:2,
+  style:"Balanced",arch:"amphitheatre",col:"#8C3A4C",col2:"#F0CBD4",ground:"Drakestone",boss:"Imelda Crowther",blurb:"No weakness and no star. The healthiest budget of the four and a squad that does everything adequately. The forgiving choice.",bias:{Keeper:78,Beater:77,Chaser:77,Seeker:77},
+  note:"Balanced, tight with a galleon.",ai:{ag:.30,sf:3,form:"Porskoff",spend:.3}},
+ {id:"wisp",n:"Wispmere Wardens",budget:300000,tier:2,
+  style:"Seeker-led",arch:"chateau",col:"#4F7A58",col2:"#D4E9D8",ground:"Wispmere Meadow",boss:"Alaric Penhale",blurb:"One truly great seeker and six ordinary players. Under canon snitch rules that is often enough. Richest budget, thinnest squad.",bias:{Keeper:70,Beater:69,Chaser:71,Seeker:90},
+  note:"One great seeker and six others.",ai:{ag:.25,sf:5,form:"Hawkshead",spend:.9}}];
+
+const ROSTERS={
+ thorn:[["Ulric Thane","Beater",28,88],["Marta Coombe","Beater",31,82],["Gareth Holloway","Keeper",34,79],
+  ["Bryn Halloran","Chaser",26,78],["Edda Marrowbone","Seeker",23,74],["Ottoline Skeff","Chaser",25,73],
+  ["Cort Vandermere","Chaser",22,70],["Hew Bracken","Keeper",21,66],["Lorne Pike","Seeker",19,64],
+  ["Dilys Crag","Chaser",20,63]],
+ ashfen:[["Torvald Grim","Beater",27,85],["Peregrine Vale","Chaser",24,83],["Cass Wren","Seeker",29,82],
+  ["Bram Osgood","Keeper",32,80],["Sana Okonkwo","Chaser",26,79],["Odile Fash","Beater",23,74],
+  ["Milo Radcliffe","Chaser",21,72],["Perry Salt","Keeper",20,67],["Fenwick Ames","Seeker",18,65],
+  ["Juno Vetch","Chaser",19,64]],
+ dire:[["Quill Ashby","Seeker",26,86],["Halvard Stone","Beater",29,83],["Imara Sole","Chaser",25,81],
+  ["Rowan Vex","Keeper",33,78],["Dov Brackwater","Chaser",27,74],["Bea Thistlewood","Beater",22,71],
+  ["Nessa Corrigan","Chaser",24,69],["Alden Roke","Keeper",19,66],["Sib Wrenfield","Seeker",20,64],
+  ["Petra Lund","Chaser",18,62]],
+ wisp:[["Ione Fairweather","Seeker",28,91],["Wynn Calloway","Chaser",25,76],["Pell Ashgrove","Keeper",30,72],
+  ["Tamsin Rooke","Chaser",23,71],["Cobb Dunnage","Beater",24,70],["Sela Vance","Beater",21,68],
+  ["Orla Frost","Seeker",22,67],["Edgar Mott","Chaser",19,66],["Bram Tinley","Keeper",20,64],
+  ["Ned Harrow","Chaser",18,61]]};
+
+const FIRST=["Wren","Pip","Tamsin","Cael","Bryde","Noll","Fenn","Isolde","Rook","Merri","Alby","Sorrel",
+ "Gil","Hana","Torin","Della","Osric","Vesper","Lark","Gethin","Mabel","Cassius"];
+const LAST=["Ashdown","Fenwick","Larkspur","Merrow","Copperfield","Thistle","Vane","Oakes","Dunmore",
+ "Braid","Snelling","Harrow","Quillon","Ravensworth","Pike","Gaunt"];
+const POSN=["Chaser","Chaser","Chaser","Beater","Beater","Keeper","Seeker"];
+
+const FORMS=[
+ {n:"Hawkshead",note:"Attacking arrowhead. Sharper shooting, nothing held back.",
+  acc:.07,intc:-.03,poss:0},
+ {n:"Porskoff",note:"Patient ploy. Reads their passing and turns defence into attack.",
+  acc:.02,intc:.08,poss:0},
+ {n:"Parkin's Pincer",note:"Squeeze the middle. Keeps the quaffle, rarely lets it back.",
+  acc:-.01,intc:.02,poss:.16}];
+
+/* Chaser tempo — how quickly you commit the quaffle forward. */
+const TEMPOS={
+ patient:{n:"Patient",note:"Work the angles. Fewer shots, better ones, less turnover.",
+  acc:.05,poss:.10,shots:-.18},
+ balanced:{n:"Balanced",note:"Take what is offered.",acc:0,poss:0,shots:0},
+ fast:{n:"Fast break",note:"Shoot early and often. More attempts, sloppier ones.",
+  acc:-.06,poss:-.08,shots:.22}};
+
+/* Who your beaters aim at. */
+const BTARGETS={
+ chasers:{n:"Their chasers",note:"Break up attacks. Safe, steady, unspectacular."},
+ seeker:{n:"Their seeker",note:"Hunt the snitch-catcher. Hurts their seeker duel if it lands."},
+ keeper:{n:"Their keeper",note:"Rattle the last line. Opens the hoops if it lands."}};
+
+const SPONSORS=[
+ {id:"s0",n:"Cauldwell Cauldrons",pay:400,rep:0,note:"Local outfitter. Glad of the crest."},
+ {id:"s1",n:"Nimbus Broomworks",pay:1400,rep:30,note:"Mid-tier brooms, steady money."},
+ {id:"s2",n:"Golden Snidget Ale",pay:600,rep:40,perWin:700,note:"Bonus for every recent win."},
+ {id:"s3",n:"Ironvault Exchange",pay:3000,rep:55,note:"Goblin bank. Deep pockets."},
+ {id:"s4",n:"Emberstreak Brooms",pay:5500,rep:72,posBonus:1200,note:"Elite racing. Pays for league position."}];
+
+const CAP=[500,2000,6000,15000], EXPAND=[0,60000,180000,450000],
+ STAD_UP=[500,1500,4000,9000], REPAIR_COST=12000, REPAIR_GAIN=20, EXPAND_MIN=60;
+
+const FACS={
+ broom:{n:"Broom store",note:"Squad-wide speed bonus.",cost:[0,20000,34000,50000],eff:[0,1,2,3]},
+ med:{n:"Medical wing",note:"Faster healing, fewer relapses.",cost:[0,15000,26000,40000],eff:[0,.10,.15,.20]},
+ train:{n:"Training ground",note:"Multiplies weekly development, and your coaches read your own players' ceilings more sharply.",cost:[0,25000,40000,60000],eff:[1,1.15,1.3,1.5]},
+ scout:{n:"Scouting network",note:"Sharpens the ceiling you are shown for every player \u2014 academy, transfer targets and free agents alike.",cost:[0,10000,20000,30000],eff:[22,14,8,0]}};
+/* Matchday trade. Each stream earns per head at home fixtures, so the bigger and
+   fuller the ground, the more the counters take. */
+const COMMERCE={
+ food:{n:"Food &amp; drink",note:"Pies, pumpkin juice, butterbeer at the turnstiles.",
+  cost:[0,18000,32000,55000],yield:[0,1.50,2.50,3.75],scale:"none"},
+ shop:{n:"Club shop",note:"Scarves and replica robes. Sells on reputation.",
+  cost:[0,12000,24000,44000],yield:[0,1.00,2.00,3.25],scale:"rep"},
+ omni:{n:"Omniocular hire",note:"Rented by the match. Worth more the further the back row sits.",
+  cost:[0,15000,28000,48000],yield:[0,0.65,1.25,2.00],scale:"tier"},
+ prog:{n:"Matchday programme",note:"Cheap to print, everyone buys one.",
+  cost:[0,6000,12000,20000],yield:[0,0.40,0.65,1.00],scale:"none"}};
+function commerceRate(){
+  let per=0;
+  for(const k in COMMERCE){
+    const c=COMMERCE[k],lv=(st.com&&st.com[k])||0;
+    if(!lv)continue;
+    let y=c.yield[lv];
+    if(c.scale==="rep")y*=(0.6+st.rep/100);
+    if(c.scale==="tier")y*=(1+st.tier*0.15);
+    per+=y;
+  }
+  return per;}
+function commerceUp(){let t=0;for(const k in COMMERCE){const lv=(st.com&&st.com[k])||0;
+  if(lv>0)t+=Math.round(COMMERCE[k].cost[lv]*.03);}return t;}
+function commerceTake(att){return Math.round(att*commerceRate());}
+
+/* Weather. Rolled a week ahead so you can pick tactics around it. */
+const WEATHER={
+ clear:{n:"Clear",note:"Still air, good visibility. Nothing to work around.",
+  acc:0,sight:0,catch:0,inj:1,att:1.05,train:1},
+ rain:{n:"Rain",note:"Greasy quaffle, poor visibility. Handling suffers and the snitch is hard to follow.",
+  acc:-.05,sight:-.03,catch:-.06,inj:1.1,att:.88,train:.9},
+ wind:{n:"High wind",note:"Passes drift and bludgers go where they like. Brutal for accuracy, dangerous in the air.",
+  acc:-.08,sight:-.02,catch:-.04,inj:1.35,att:.92,train:.85},
+ fog:{n:"Fog",note:"The snitch is nearly invisible. Long matches, and the seeker duel becomes a lottery.",
+  acc:-.03,sight:-.09,catch:-.12,inj:1.05,att:.80,train:.9},
+ snow:{n:"Snow",note:"Slow, cold and sparsely attended. Everything is harder.",
+  acc:-.06,sight:-.05,catch:-.07,inj:1.15,att:.68,train:.75},
+ crisp:{n:"Crisp and bright",note:"Cold, clear, still. The best conditions there are, and the crowd turns out.",
+  acc:.03,sight:.04,catch:.05,inj:.9,att:1.15,train:1.1}};
+const WEATHER_KEYS=["clear","clear","rain","rain","wind","fog","snow","crisp"];
+function rollWeather(r){return WEATHER_KEYS[Math.floor(r.next()*WEATHER_KEYS.length)];}
+function wx(){return WEATHER[st.weather]||WEATHER.clear;}
+
+const ACAD_BUILD=[0,40000,90000,180000], ACAD_UP=[0,800,1600,3000],
+ ACAD_CHANCE=[0,.30,.45,.60], ACAD_RANGE=[null,[54,66],[58,70],[62,74]];
+
+/* The paper. Quotes are templated by result and by the manager's temperament,
+   so Blackwood always sounds like Blackwood. */
+const PAPER_NAME="The Quaffle &amp; Quill";
+const QUOTES={
+ win:["\u201CWe were the better side and everybody in the ground knew it.\u201D",
+  "\u201CI have been telling them for weeks they were close. Today they believed me.\u201D",
+  "\u201COne result. We go again on Saturday.\u201D",
+  "\u201CThe players deserve every word of praise coming their way.\u201D"],
+ loss:["\u201CWe were second to everything. That is on me.\u201D",
+  "\u201CI have no complaints. They wanted it more.\u201D",
+  "\u201CThree decisions went against us and you all saw them.\u201D",
+  "\u201CWe will be back in that dressing room on Monday putting it right.\u201D"],
+ draw:["\u201CA point is a point. I would have taken it beforehand.\u201D",
+  "\u201CWe should have won that and everyone in blue knows it.\u201D",
+  "\u201CBoth sides gave the crowd their money\u2019s worth.\u201D"]};
+const PLAYER_QUOTES={
+ win:["\u201CThe gaffer had us set up perfectly.\u201D",
+  "\u201CI have not enjoyed a match like that in a long while.\u201D",
+  "\u201CWe fly for each other. That is the difference.\u201D"],
+ loss:["\u201CWe let the supporters down today.\u201D",
+  "\u201CNobody is hiding from this one.\u201D",
+  "\u201CWe will look at it, learn from it, and move on.\u201D"],
+ draw:["\u201CFrustrating, but we stayed in it.\u201D",
+  "\u201CWe take the point and look forward.\u201D"]};
+const GOSSIP=["is said to have been seen at a rival ground midweek",
+ "has reportedly turned down a move abroad","is unhappy with his place in the side",
+ "has been training alone since the weekend","is the subject of quiet admiration elsewhere",
+ "has been promised a review of his terms"];
+
+const MAGS=["Snitchcraft Monthly","Broomshaft Quarterly","The Keeper's Journal","Bludgercraft Weekly"];
+const TABLOIDS=["The Grimoire Gazette","The Hexward Herald","The Cackling Post"];
+const BRANDS=["Mandrake Energy Draught","Pixiefizz","Wandworks Polish","Thunderbrew Ale"];
+
+/* press conferences — 3 outcomes x 3 questions x 3 answers */
+const PRESS={
+ W:[{q:"Composed under real pressure out there. What was the difference?",o:[
+   ["They trained for this. It's their win, not mine.",2,"measured",4],
+   ["Frankly the opposition were poor. We took what was offered.",-1,"dismissive",-3],
+   ["The crowd carried us. That one belongs to the stands.",3,"humble",2]]},
+  {q:"Bold shape for a fixture like this. How certain were you?",o:[
+   ["Completely. I knew it would unsettle them.",1,"confident",3],
+   ["It was a gamble. It came off.",2,"bold",1],
+   ["I had doubts all week. They executed anyway.",0,"candid",5]]},
+  {q:"Is this side ready to be taken seriously now?",o:[
+   ["Ask again in ten weeks. One result proves nothing.",2,"grounded",1],
+   ["We're the best team in this division. Print that.",-1,"brash",4],
+   ["We're building something. Come and watch it.",3,"warm",3]]}],
+ D:[{q:"You had it won twice over. Regrets?",o:[
+   ["No. We were miles better. Their keeper was inspired.",-2,"frustrated",-2],
+   ["A point away from home is a point. We move.",2,"pragmatic",2],
+   ["We should have buried it. That falls on me.",1,"accountable",5]]},
+  {q:"The shape looked cautious for an hour.",o:[
+   ["We respected a good side. That's not a crime.",1,"measured",1],
+   ["I misjudged it. Should have gone earlier.",-1,"honest",3],
+   ["It was the right call. We came for the point.",0,"calculated",-1]]},
+  {q:"Does a draw here feel like two dropped or one gained?",o:[
+   ["Two dropped, and everyone in that dressing room knows it.",0,"stern",-3],
+   ["One gained. Look at where we started.",2,"positive",3],
+   ["Neither. It's week one of twenty.",1,"flat",0]]}],
+ L:[{q:"A flat afternoon. What went wrong?",o:[
+   ["We were beaten by a better team today. Simple as that.",1,"gracious",1],
+   ["Three shocking calls from that official. Daylight robbery.",-3,"bitter",3],
+   ["We lost our heads for twenty minutes. My tactics, my fault.",2,"accountable",4]]},
+  {q:"Will there be changes next week?",o:[
+   ["This group stays together. We go again.",0,"defiant",4],
+   ["Some of them were nowhere near it. Yes, there'll be changes.",1,"stern",-4],
+   ["We'll review everything. Heads may roll.",-2,"ruthless",-6]]},
+  {q:"The crowd were audibly unhappy at the whistle.",o:[
+   ["They pay their money. They're entitled to it.",2,"respectful",1],
+   ["They should try flying it themselves.",-3,"contemptuous",-2],
+   ["I'd be unhappy too. We owe them one.",3,"contrite",3]]}]};
+
+/* injury flavour, by severity band */
+const INJURIES=[[1,"a jarred wrist"],[1,"a badly bruised shoulder"],[2,"a sprained ankle"],
+ [2,"cracked ribs"],[3,"a broken collarbone"],[3,"a torn ligament"],[4,"a fractured forearm"]];
+
+const ACHIEVEMENTS=[
+ {id:"first_win",n:"First Blood",d:"Win a league match."},
+ {id:"streak3",n:"On A Run",d:"Win three in a row."},
+ {id:"unbeaten10",n:"Immovable",d:"Ten matches unbeaten."},
+ {id:"champ",n:"League Champion",d:"Finish a season top."},
+ {id:"cup",n:"Ministry Cup",d:"Win the domestic cup."},
+ {id:"trophy",n:"Golden Snidget Trophy",d:"Win the continental trophy."},
+ {id:"gate5k",n:"Full House",d:"Draw a gate of 5,000."},
+ {id:"breakout",n:"Breakthrough",d:"A youngster jumps five rating in a season."},
+ {id:"perfect",n:"Perfect Season",d:"Finish a season unbeaten."}];
+
+/* ================= state ================= */
+let st, squad, market, fas, prospects, clubsState, fixtures, log, playback=null, rng;
+
+function blankState(){return{
+ mode:null,screen:"mode",club:null,cash:0,rep:25,season:1,week:1,
+ form:"Hawkshead",sf:3,ag:false,snitch:"canon",training:"tactics",tone:"—",price:8,
+ tier:0,condition:35,acad:0,fac:{broom:0,med:0,train:0,scout:0},
+ sponsor:"s0",offers:[],rec:{w:0,d:0,l:0},last5:[],
+ lastGate:0,attendance:0,played:false,result:null,pending:null,
+ ach:[],cabinet:[],sel:null,speed:1,min:0,hs:0,as:0,ended:false,run:false,
+ cup:{semis:null,finalists:[],champion:null,out:false},
+ trophy:{qual:[],agg:{},champion:null,out:false},
+ locked:false,clubName:null,style:null,sandbox:false,founded:false,
+ tempo:"balanced",btarget:"chasers",shadow:false,bribe:false,bribeHeat:0,
+ com:{food:0,shop:0,omni:0,prog:0},weather:"clear",lastCom:0,compTab:"league",groundName:null,
+ paper:null,
+ last:"pick a mode to begin",cupNext:4};}
+
+function rate(p){const w=W[p.p];let s=0;for(const k of SKILLS)s+=p.sk[k]*w[k];return Math.round(s);}
+function value(p){const r=rate(p);return Math.round(r*r*8*(p.age<24?1.15:p.age>32?.65:1));}
+function wageOf(p){return p.contract.wage*(p.bench?.5:1);}
+function devCurve(a){if(a<19)return .55;if(a<25)return .8+(a-19)*.05;if(a<30)return 1;
+ if(a<35)return 1-(a-29)*.18;return 0;}
+function retireRisk(a){if(a<35)return 0;if(a<38)return .05+(a-35)*.03;if(a<40)return .18;
+ if(a<42)return .40;return .75;}
+
+function mkPlayer(name,pos,age,base,r){
+  const sk={};const w=W[pos];
+  for(const k of SKILLS){
+    const lean=w[k]>=.14?1:w[k]>=.06?0:-1;
+    sk[k]=clamp(Math.round(base+lean*8+(r.next()*14-7)),28,97);
+  }
+  sk.exp=clamp(Math.round(30+(age-18)*3.4+r.next()*10),25,96);
+  const p={id:"p"+(++uid),n:name,p:pos,age:age,sk:sk,morale:62+Math.round(r.next()*16),
+    inj:0,injTxt:"",susp:0,bench:false,pot:null,form:0,seasonStart:0,
+    contract:{wks:20+Math.round(r.next()*40),wage:0}};
+  p.contract.wage=Math.round(value(p)*.005);
+  p.seasonStart=rate(p);
+  /* Hidden ceiling. The young have room; the old are close to what they will ever be. */
+  const head=p.age<20?(10+Math.floor(r.next()*16))
+    :p.age<24?(6+Math.floor(r.next()*13))
+    :p.age<28?(2+Math.floor(r.next()*8))
+    :p.age<32?Math.floor(r.next()*4)
+    :0;
+  p.potTrue=clamp(rate(p)+head,rate(p),99);
+  return p;}
+
+/* How sharply you can read a ceiling. Scouting covers everyone; your own coaching staff
+   sees the players it works with daily, so the training ground narrows it further. */
+function potFog(owned){
+  let f=FACS.scout.eff[st.fac.scout];
+  if(owned)f=f*.6-st.fac.train*3;
+  return Math.max(0,Math.round(f));}
+function shownPot(p,owned){
+  if(p.potTrue===undefined)return null;
+  const f=potFog(owned);
+  if(f<=0)return{exact:true,lo:p.potTrue,hi:p.potTrue};
+  return{exact:false,lo:Math.max(rate(p),p.potTrue-Math.round(f/2)),
+    hi:Math.min(99,p.potTrue+Math.round(f/2))};}
+function potLabel(p,owned){
+  const b=shownPot(p,owned);
+  if(!b)return"";
+  const head=p.potTrue-rate(p);
+  const tone=head<=1?"var(--mute)":head>=10?"var(--green)":"var(--sky)";
+  return'<span style="color:'+tone+'">'+(b.exact?("ceiling "+b.lo):("ceiling "+b.lo+"\u2013"+b.hi))+'</span>';}
+
+function buildRoster(key,r){return ROSTERS[key].map(a=>mkPlayer(a[0],a[1],a[2],a[3],r));}
+
+/* Builds a fresh squad in the shape of an archetype: first-choice players near the
+   archetype's strength for that position, backups a clear step below. */
+function buildFromArchetype(arch,r){
+  const out=[];
+  SQUAD_TEMPLATE.forEach(slot=>{
+    const pos=slot[0],first=slot[1];
+    const base=arch.bias[pos]-(first?0:11)+Math.round(r.next()*6-3);
+    const age=first?(22+Math.floor(r.next()*11)):(18+Math.floor(r.next()*6));
+    out.push(mkPlayer(newName(r),pos,age,clamp(base,50,94),r));
+  });
+  return out;}
+
+function newName(r){return FIRST[Math.floor(r.next()*FIRST.length)]+" "+LAST[Math.floor(r.next()*LAST.length)];}
+
+function mkFreeAgent(r){
+  const pos=POSN[Math.floor(r.next()*POSN.length)];
+  const age=20+Math.floor(r.next()*16);
+  const p=mkPlayer(newName(r),pos,age,52+Math.floor(r.next()*12),r);
+  p.contract.wks=10+Math.floor(r.next()*20);
+  return p;}
+
+function mkTarget(r){
+  const pos=POSN[Math.floor(r.next()*POSN.length)];
+  const age=21+Math.floor(r.next()*12);
+  return mkPlayer(newName(r),pos,age,64+Math.floor(r.next()*18),r);}
+
+function mkProspect(r){
+  const b=ACAD_RANGE[st.acad];
+  const pos=POSN[Math.floor(r.next()*POSN.length)];
+  const p=mkPlayer(newName(r),pos,17+Math.floor(r.next()*4),
+    b[0]+Math.floor(r.next()*(b[1]-b[0])),r);
+  p.potTrue=clamp(rate(p)+8+Math.floor(r.next()*16),rate(p),99);
+  p.prospect=true;
+  p.contract.wage=Math.round(value(p)*.004);
+  return p;}
+
+/* ================= squad helpers ================= */
+const avail=p=>p.inj===0&&p.susp===0;
+function active(){return squad.filter(p=>!p.bench);}
+function autoPick(){
+  squad.forEach(p=>p.bench=true);
+  for(const pos in NEED){
+    const pool=squad.filter(p=>p.p===pos&&avail(p)).sort((a,b)=>rate(b)-rate(a));
+    pool.slice(0,NEED[pos]).forEach(p=>p.bench=false);
+  }
+  let short=7-squad.filter(p=>!p.bench).length;
+  if(short>0){squad.filter(p=>p.bench&&avail(p)).sort((a,b)=>rate(b)-rate(a))
+    .slice(0,short).forEach(p=>p.bench=false);}}
+function lineup(list,fallback){
+  /* Fills every slot even when a club is stripped by injuries: preferred position first,
+     then best remaining body, then out-of-position double duty. Never returns undefined. */
+  const pool=list.length?list:(fallback||[]);
+  const used={};
+  function take(pos,n){
+    const out=pool.filter(p=>p.p===pos&&!used[p.id]).sort((a,b)=>rate(b)-rate(a)).slice(0,n);
+    out.forEach(p=>{used[p.id]=1;});
+    while(out.length<n){
+      let sub=pool.filter(p=>!used[p.id]).sort((a,b)=>rate(b)-rate(a))[0];
+      if(!sub)sub=pool.sort((a,b)=>rate(b)-rate(a))[0];
+      if(!sub)break;
+      used[sub.id]=1;out.push(sub);
+    }
+    return out;}
+  const gk=take("Keeper",1),bt=take("Beater",2),ch=take("Chaser",3),sk=take("Seeker",1);
+  return {gk:gk[0],sk:sk[0],ch:ch,bt:bt};}
+function canSell(p){
+  const left=squad.filter(x=>x!==p&&x.p===p.p).length;
+  if(left<NEED[p.p])return{ok:false,why:"leaves you short at "+p.p.toLowerCase()};
+  if(squad.length<=8)return{ok:false,why:"squad would drop below eight"};
+  return{ok:true};}
+
+/* ================= match engine ================= */
+/* Simulates the whole match up front into an event log, then the UI replays it.
+   Same function drives AI-vs-AI fixtures (instant) and the player's match (replayed). */
+function simulate(home,away,opts,r){
+  const H=lineup(home.players,home.all),A=lineup(away.players,away.all);
+  if(!H.gk||!H.sk||!A.gk||!A.sk||!H.ch.length||!A.ch.length)
+    return {hs:0,as:0,log:[{min:0,type:"",txt:"Match abandoned \u2014 a side could not raise seven.",h:0,a:0}],
+            inj:[],cards:[],mom:{h:0,a:0},snitches:0,min:0};
+  const fm=FORMS.find(f=>f.n===opts.form)||FORMS[0];
+  const afm=FORMS.find(f=>f.n===opts.aform)||FORMS[0];
+  const broomH=opts.broom||0, broomA=opts.abroom||0;
+  const eff=(p,bonus)=>rate(p)+(p.morale-60)*.12+bonus*1.5+(p.form||0);
+  const out={hs:0,as:0,log:[],inj:[],cards:[],mom:{h:0,a:0},snitches:0};
+  const say=(min,type,txt)=>out.log.push({min:min,type:type,txt:txt,h:out.hs,a:out.as});
+  const canon=opts.snitch!=="modern";
+  let poss=r.next()<.5?"H":"A", ended=false, sighted=false, min=0;
+  const sf=opts.sf, asf=opts.asf, agH=opts.ag, agA=opts.aag;
+  const tH=TEMPOS[opts.tempo||"balanced"], tA=TEMPOS[opts.atempo||"balanced"];
+  const btH=opts.btarget||"chasers", btA=opts.abtarget||"chasers";
+  const shadowH=!!opts.shadow, shadowA=!!opts.ashadow;
+  const bribeH=!!opts.bribe;
+  const W=WEATHER[opts.weather]||WEATHER.clear;
+  /* damage taken by a side's seeker/keeper carries through the match */
+  const hurt={};
+  const dmg=p=>hurt[p.id]||0;
+  say(0,"","The whistle goes. "+({clear:"Still air and a clear sky.",
+    rain:"Rain sheeting across the pitch.",wind:"A gale is running the length of the ground.",
+    fog:"Thick fog. You can barely see the far hoops.",snow:"Snow, and it is settling.",
+    crisp:"Cold, bright and dead still."}[opts.weather||"clear"]));
+  while(!ended&&min<180){
+    min+=1+Math.floor(r.next()*3);
+    const att=poss==="H"?H:A, def=poss==="H"?A:H;
+    const attHome=poss==="H";
+    const bonusA=attHome?broomH:broomA, bonusD=attHome?broomA:broomH;
+    const fmA=attHome?fm:afm, fmD=attHome?afm:fm;
+    const tmpA=attHome?tH:tA;
+    /* the defending shape can read the pass and turn it over before a shot */
+    const intc=clamp(fmD.intc+.04,0,.30);
+    if(r.next()<intc){
+      const thief=def.ch[Math.floor(r.next()*def.ch.length)];
+      say(min,"",surname(thief)+" reads it and cuts the pass out.");
+      poss=attHome?"A":"H";
+      continue;
+    }
+    /* patient sides simply attempt fewer shots */
+    if(r.next()< -Math.min(0,tmpA.shots)){
+      say(min,"",att.ch.map(surname)[0]+" recycles it, no angle yet.");
+      continue;
+    }
+    /* quaffle play */
+    const c2=att.ch.slice().sort((a,b)=>eff(b,bonusA)-eff(a,bonusA))[0];
+    const gk=def.gk;
+    const seekDrag=(attHome?sf:asf)>=4?.05:0;
+    const acc=clamp(.30+(eff(c2,bonusA)-76)*.007-(eff(gk,bonusD)-78-dmg(gk)*6)*.006
+      +fmA.acc+tmpA.acc+W.acc-seekDrag,.06,.68);
+    if(r.next()<acc){
+      if(attHome){out.hs+=10;out.mom.h++;}else{out.as+=10;out.mom.a++;}
+      say(min,"goal",surname(c2)+" ("+(attHome?home.n:away.n)+") drives it through the left hoop. Ten.");
+      poss=attHome?"A":"H";
+    } else {
+      if(r.next()<.45){say(min,"",gk.n+" palms it clear. "+surname(c2)+" will curse that.");}
+      /* possession-hogging shapes win the rebound */
+      if(r.next()<clamp(fmA.poss+tmpA.poss,0,.45)){
+        say(min,"",att.ch.map(surname)[1%att.ch.length]+" gathers the rebound. Still theirs.");
+      } else poss=attHome?"A":"H";
+    }
+    /* bludger work */
+    const aggr=attHome?agH:agA;
+    if(r.next()<(aggr?.24:.15)){
+      const hitter=att.bt[Math.floor(r.next()*att.bt.length)];
+      const tgt=attHome?btH:btA;
+      let pool;
+      if(tgt==="seeker")pool=r.next()<.72?[def.sk]:def.ch;
+      else if(tgt==="keeper")pool=r.next()<.72?[def.gk]:def.ch;
+      else pool=def.ch.concat([def.gk,def.sk]);
+      const victim=pool[Math.floor(r.next()*pool.length)];
+      let ip=.10+(hitter.sk.phy-78)*.005-(victim.sk.phy-76)*.006-(victim.sk.men-76)*.002;
+      if(aggr)ip*=1.7;
+      ip*=W.inj;
+      ip=clamp(ip,.02,.45);
+      if(r.next()<ip){
+        const band=INJURIES[Math.floor(r.next()*INJURIES.length)];
+        out.inj.push({id:victim.id,wks:band[0],txt:band[1],name:victim.n});
+        say(min,"inj",surname(hitter)+" catches "+victim.n+" flush. He goes down with "+band[1]+".");
+      } else if(r.next()<.45){
+        hurt[victim.id]=(hurt[victim.id]||0)+1;
+        say(min,"",surname(hitter)+" catches "+surname(victim)+" on the shoulder. He is shaken.");
+      } else say(min,"",surname(hitter)+" rattles a bludger past "+surname(victim)+"'s ear.");
+    }
+    /* fouls and cards */
+    const foulRate=(aggr?.10:.05)*((attHome&&bribeH)?.45:1);
+    if(r.next()<foulRate){
+      const off=att.bt[Math.floor(r.next()*att.bt.length)];
+      const sev=r.next();
+      if(sev>(aggr?.86:.94)){
+        out.cards.push({id:off.id,name:off.n,red:true,home:attHome});
+        say(min,"foul","RED. "+off.n+" blatched a chaser into the stands. Sent off.");
+        if(attHome){out.as+=10;}else{out.hs+=10;}
+      } else if(sev>.6){
+        out.cards.push({id:off.id,name:off.n,red:false,home:attHome});
+        say(min,"foul","Yellow for "+off.n+". Cobbing, and the official saw all of it.");
+      } else say(min,"foul","Free shot awarded against "+surname(off)+".");
+    }
+    /* snitch */
+    if(!sighted&&(min>45&&r.next()<clamp(.16+(Math.max(sf,asf)-3)*.03+W.sight,.02,.9)||min>=110)){
+      sighted=true;say(min,"snitch","A glint of gold over the north stand. Both seekers turn.");
+    }
+    const shadowDamp=(shadowH||shadowA)?.55:1;
+    /* Both seekers are hunting, so the attempt rate reflects both sides' commitment
+       and composure — not just whoever happens to be at home. */
+    const focusAvg=(sf+asf)/2, menAvg=(H.sk.sk.men+A.sk.sk.men)/2;
+    if(sighted&&r.next()<clamp((.20+.06*(focusAvg-3)+(menAvg-78)*.002+W.catch)*shadowDamp,.03,.55)){
+      let hw=eff(H.sk,broomH)-dmg(H.sk)*5+sf*4+(H.sk.sk.see-76)*.3;
+      let aw=eff(A.sk,broomA)-dmg(A.sk)*5+asf*4+(A.sk.sk.see-76)*.3;
+      /* shadowing drags the duel toward a coin flip — the weaker seeker's friend */
+      if(opts.weather==="fog"){const m=(hw+aw)/2;hw=hw*.6+m*.4;aw=aw*.6+m*.4;}
+      if(shadowH){const m=(hw+aw)/2;hw=hw*.45+m*.55;aw=aw*.45+m*.55;}
+      if(shadowA){const m=(hw+aw)/2;hw=hw*.45+m*.55;aw=aw*.45+m*.55;}
+      const homeWins=r.next()<hw/(hw+aw);
+      const catcher=homeWins?H.sk:A.sk;
+      const pts=canon?150:30;
+      if(homeWins)out.hs+=pts;else out.as+=pts;
+      out.snitches++;
+      say(min,"snitch",catcher.n+" closes a fist on the snitch. "+pts+" to "+
+        (homeWins?home.n:away.n)+".");
+      if(canon){ended=true;}
+      else{sighted=false;
+        if(out.snitches>=4||min>150)ended=true;
+        else say(min,"","A fresh snitch is loosed. The seekers climb again.");}
+    }
+    if(!canon&&min>=150)ended=true;
+  }
+  if(!ended)say(min,"","Time called with the snitch still loose.");
+  out.min=min;
+  return out;}
+
+/* ================= league ================= */
+function clubById(id){return clubsState.find(c=>c.id===id);}
+/* Three competitions, on the English model.
+   League  — everyone, every free week, the bread and butter.
+   Ministry Cup — domestic knockout, all four clubs, semis then final.
+   Golden Snidget Trophy — continental, the two best clubs of last season, over two legs. */
+const COMPS={
+ league:{n:"British & Irish League",short:"League",col:"var(--gold)"},
+ cup:{n:"The Ministry Cup",short:"Ministry Cup",col:"var(--sky)",semi:6,final:14},
+ trophy:{n:"The Golden Snidget Trophy",short:"Snidget Trophy",col:"var(--green)",
+   leg1:10,leg2:18}};
+const CUP_SEMI=COMPS.cup.semi, CUP_FINAL=COMPS.cup.final;
+const TRO_L1=COMPS.trophy.leg1, TRO_L2=COMPS.trophy.leg2;
+const isTrophyWeek=w=>w===TRO_L1||w===TRO_L2;
+const compOf=w=>isCupWeek(w)?"cup":isTrophyWeek(w)?"trophy":"league";
+const isCupWeek=w=>w===CUP_SEMI||w===CUP_FINAL;
+const cupRound=w=>w===CUP_SEMI?"Cup semi-final":w===CUP_FINAL?"Cup final":null;
+
+/* Cup ties are seeded off the table at semi-final time: 1v4, 2v3. */
+function cupPairings(week){
+  if(week===CUP_SEMI){
+    if(!st.cup.semis){
+      const t=standings();
+      st.cup.semis=[{h:t[0].id,a:t[3].id},{h:t[1].id,a:t[2].id}];
+    }
+    return st.cup.semis;
+  }
+  if(week===CUP_FINAL&&st.cup.finalists.length===2)
+    return [{h:st.cup.finalists[0],a:st.cup.finalists[1]}];
+  return [];}
+
+/* A cup tie cannot be drawn: snitch catches settle it, then squad strength. */
+function cupWinner(f,res){
+  if(res.hs>res.as)return f.h;
+  if(res.as>res.hs)return f.a;
+  const h=clubById(f.h),a=clubById(f.a);
+  const hr=h.players.reduce((s,p)=>s+rate(p),0)/h.players.length;
+  const ar=a.players.reduce((s,p)=>s+rate(p),0)/a.players.length;
+  return hr>=ar?f.h:f.a;}
+
+function recordTrophy(week,f,res){
+  const q=seedTrophy();
+  st.trophy.agg=st.trophy.agg||{};
+  st.trophy.agg[f.h]=(st.trophy.agg[f.h]||0)+res.hs;
+  st.trophy.agg[f.a]=(st.trophy.agg[f.a]||0)+res.as;
+  if(week===TRO_L2){
+    const a=st.trophy.agg[q[0]]||0, b=st.trophy.agg[q[1]]||0;
+    const wid=a>=b?q[0]:q[1];
+    st.trophy.champion=wid;
+    if(wid===st.club){
+      unlock("trophy");st.cash+=70000;st.rep=clamp(st.rep+8,5,100);
+      note("You won the Golden Snidget Trophy on aggregate.");
+    } else if(q.indexOf(st.club)>-1){
+      st.trophy.out=true;note(clubById(wid).n+" took the Trophy on aggregate.");
+    }
+  }}
+function recordCup(week,winner,loserName,winnerName){
+  if(week===CUP_SEMI){
+    if(st.cup.finalists.indexOf(winner)<0)st.cup.finalists.push(winner);
+    if(winner!==st.club&&st.cup.semis&&st.cup.semis.some(t=>
+      (t.h===st.club||t.a===st.club)&&(t.h===winner||t.a===winner)))st.cup.out=true;
+  } else if(week===CUP_FINAL){
+    st.cup.champion=winner;
+    if(winner===st.club){
+      unlock("cup");st.cash+=45000;st.rep=clamp(st.rep+6,5,100);
+      note("You won the Cup. "+money(45000)+" and the front pages.");
+    } else { st.cup.out=true; note(winnerName+" lifted the Cup."); }
+  }}
+
+/* The two strongest clubs of last season qualify for the Trophy. In the first season
+   it is seeded on squad strength. */
+function seedTrophy(){
+  if(st.trophy.qual&&st.trophy.qual.length===2)return st.trophy.qual;
+  const rank=clubsState.slice().sort((a,b)=>{
+    const av=x=>x.players.length?x.players.reduce((s,p)=>s+rate(p),0)/x.players.length:0;
+    return av(b)-av(a);});
+  st.trophy.qual=[rank[0].id,rank[1].id];
+  return st.trophy.qual;}
+function trophyPairing(week){
+  const q=seedTrophy();
+  if(q.length<2)return[];
+  return week===TRO_L1?[{h:q[0],a:q[1]}]:[{h:q[1],a:q[0]}];}
+
+function schedule(week){
+  if(isTrophyWeek(week))return trophyPairing(week);
+  if(isCupWeek(week))return cupPairings(week);
+  /* 4 clubs, 3-round rotation, repeating */
+  const ids=clubsState.map(c=>c.id);
+  /* Count league weeks only — cup weeks must not shift the rotation, or one club
+     ends up with far more away fixtures than the rest. */
+  let idx=0;
+  for(let w=1;w<week;w++)if(compOf(w)==="league")idx++;
+  const rot=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]][idx%3];
+  /* Each three-week cycle is played twice, venues reversed the second time, so every
+     club gets an even split of home and away fixtures across the season. */
+  const flip=Math.floor(idx/3)%2===1;
+  return rot.map(pair=>flip?{h:ids[pair[1]],a:ids[pair[0]]}
+                           :{h:ids[pair[0]],a:ids[pair[1]]});}
+function myFixture(){
+  return schedule(st.week).find(f=>f.h===st.club||f.a===st.club);}
+function aiLineupData(c){
+  const cl=CLUBS.find(x=>x.id===c.id);
+  return{n:c.n,players:c.players.filter(avail)};}
+function simAI(f,r){
+  const h=clubById(f.h), a=clubById(f.a);
+  const ha=CLUBS.find(x=>x.id===h.id).ai, aa=CLUBS.find(x=>x.id===a.id).ai;
+  const res=simulate({n:h.n,players:h.players.filter(avail),all:h.players},
+    {n:a.n,players:a.players.filter(avail),all:a.players},
+    {form:ha.form,aform:aa.form,sf:ha.sf,asf:aa.sf,ag:r.next()<ha.ag,aag:r.next()<aa.ag,
+     snitch:st.snitch,broom:0,abroom:0,weather:st.weather},r);
+  if(compOf(st.week)==="league")applyResult(h,a,res);
+  applyPhysical(h,res,true);applyPhysical(a,res,false);
+  return res;}
+function applyResult(h,a,res){
+  h.gf+=res.hs;h.ga+=res.as;a.gf+=res.as;a.ga+=res.hs;
+  if(res.hs>res.as){h.w++;a.l++;h.pts+=3;}
+  else if(res.as>res.hs){a.w++;h.l++;a.pts+=3;}
+  else{h.d++;a.d++;h.pts++;a.pts++;}}
+function applyPhysical(club,res,isHome){
+  res.inj.forEach(i=>{const p=club.players.find(x=>x.id===i.id);
+    if(p){p.inj=i.wks;p.injTxt=i.txt;}});
+  res.cards.forEach(c=>{if(c.red===true){const p=club.players.find(x=>x.id===c.id);
+    if(p&&c.home===isHome)p.susp=1;}});}
+function standings(){
+  return clubsState.slice().sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf);}
+function myPos(){return standings().findIndex(c=>c.id===st.club)+1;}
+
+/* ================= economy ================= */
+function wageBill(){return squad.reduce((s,p)=>s+wageOf(p),0);}
+function stadUp(){return STAD_UP[st.tier];}
+function acadUp(){return ACAD_UP[st.acad];}
+function facUp(){let t=0;for(const k in FACS){const lv=(st.fac&&st.fac[k])||0;if(lv>0)t+=Math.round(FACS[k].cost[lv]*.07);}return t;}
+function sponsorObj(){return SPONSORS.find(s=>s.id===st.sponsor);}
+function sponsorPay(){const s=sponsorObj();if(!s)return 0;let p=s.pay;
+  if(s.perWin)p+=s.perWin*st.last5.filter(x=>x==="W").length;
+  if(s.posBonus)p+=s.posBonus*(5-myPos());
+  return Math.round(p);}
+function attendanceFor(price){
+  const w=st.last5.filter(x=>x==="W").length,l=st.last5.filter(x=>x==="L").length;
+  const formF=clamp(.75+.10*w-.05*l,.6,1.4);
+  const repF=clamp(.4+st.rep/100*.9,.4,1.3);
+  const condF=.55+st.condition/100*.45;
+  const posF=clamp(1.2-(myPos()-1)*.1,.8,1.2);
+  const fair=5+st.rep/100*20;
+  const priceF=clamp(1.4-.7*(price/fair),.2,1.25);
+  return Math.min(CAP[st.tier],Math.round(CAP[st.tier]*.85*repF*formF*priceF*condF*posF*wx().att));}
+function leaguePrize(res){
+  if(isTrophyWeek(st.week))return res==="W"?20000:8000;
+  if(isCupWeek(st.week))return res==="W"?12000:4000;
+  return res==="W"?4000:res==="D"?1500:500;}
+
+/* ================= weekly development ================= */
+const TRAIN={tactics:{n:"Tactics",hits:["tac","men","pas"],mult:1.5},
+ physical:{n:"Physical",hits:["phy","spd","sho"],mult:1.2},
+ mental:{n:"Mental",hits:["men","exp","see"],mult:1.0}};
+/* Physical and tactical work happens in the air, so the weather bites.
+   Mental work is done indoors. A better training ground shelters more of it. */
+function weatherTrainMult(){
+  const raw=wx().train;
+  if(st.training==="mental")return 1;
+  const shelter=st.fac.train*0.22;
+  return raw+(1-raw)*Math.min(1,shelter);}
+function projectedGain(p){
+  const t=TRAIN[st.training];
+  let g=devCurve(p.age)*t.mult*FACS.train.eff[st.fac.train]*weatherTrainMult();
+  if(p.bench)g*=.5;
+  if(p.inj>0)g*=.5;
+  return g;}
+function developAll(r){
+  const t=TRAIN[st.training];
+  squad.forEach(p=>{
+    let g=projectedGain(p);
+    const head=(p.potTrue===undefined?99:p.potTrue)-rate(p);
+    /* a player at his ceiling barely improves, however hard he trains */
+    if(head<=0)g*=.08;else if(head<5)g*=(.25+head*.15);
+    if(g>0){t.hits.forEach(k=>{p.sk[k]=clamp(p.sk[k]+g*(.18+r.next()*.30),20,99);});}
+    if(p.age>=35){const drop=(p.age-34)*.25;
+      SKILLS.forEach(k=>{if(k!=="exp"&&k!=="men")p.sk[k]=clamp(p.sk[k]-drop*(.5+r.next()*.6),20,99);});}
+  });}
+function healAll(r){
+  const med=FACS.med.eff[st.fac.med];
+  squad.forEach(p=>{
+    if(p.susp>0)p.susp--;
+    if(p.inj>0){
+      let heal=1+(st.training==="mental"?.4:0)+med*2;
+      if(st.training==="physical"&&r.next()<clamp(.10-med,0,.10)){
+        p.inj+=1;note(p.n+" aggravated "+p.injTxt+" in training.");return;}
+      p.inj=Math.max(0,p.inj-heal);
+      if(p.inj<1)p.inj=0;
+      if(p.inj===0)p.injTxt="";
+    }});}
+
+/* ================= weekly cycle ================= */
+let notes=[];
+function note(t){notes.push(t);}
+
+/* Assembles one issue from the week just played. */
+function buildPaper(week,fixtures){
+  const r=new SeededRandom(hashStr("paper|"+st.season+"|"+week+"|"+(st.clubName||"")));
+  const pick=a=>a[Math.floor(r.next()*a.length)];
+  const comp=COMPS[compOf(week)];
+  /* lead story: the biggest margin of the week */
+  let lead=null,best=-1;
+  fixtures.forEach(f=>{
+    const m=Math.abs(f.hs-f.as);
+    if(m>best){best=m;lead=f;}});
+  const stories=[];
+  fixtures.forEach(f=>{
+    const win=f.hs>f.as?f.h:f.as>f.hs?f.a:null;
+    const loseId=win?(win===f.h?f.a:f.h):null;
+    const speaker=win?clubById(win):clubById(f.h);
+    const boss=speaker.id===st.club?"You":(CLUBS.find(c=>c.id===speaker.id)||{}).boss;
+    const mood=win?(win===speaker.id?"win":"loss"):"draw";
+    stories.push({club:speaker.n,boss:boss,line:pick(QUOTES[mood]),
+      tone:mood,mine:speaker.id===st.club});
+    if(loseId&&r.next()<.6){
+      const lc=clubById(loseId);
+      const lb=lc.id===st.club?"You":(CLUBS.find(c=>c.id===lc.id)||{}).boss;
+      stories.push({club:lc.n,boss:lb,line:pick(QUOTES.loss),tone:"loss",mine:lc.id===st.club});}
+  });
+  /* a player voice, drawn from my own squad */
+  let playerVoice=null;
+  if(st.played&&squad.length){
+    const pool=squad.filter(p=>!p.bench&&avail(p));
+    const p=pool.length?pool[Math.floor(r.next()*pool.length)]:squad[0];
+    const mood=st.result==="W"?"win":st.result==="L"?"loss":"draw";
+    playerVoice={name:p.n,pos:p.p,club:st.clubName,line:pick(PLAYER_QUOTES[mood])};}
+  /* gossip about somebody not in the side */
+  let gossip=null;
+  const bench=squad.filter(p=>p.bench||p.morale<50);
+  if(bench.length&&r.next()<.7){
+    const p=bench[Math.floor(r.next()*bench.length)];
+    gossip=p.n+" of "+st.clubName+" "+pick(GOSSIP)+".";}
+  return{season:st.season,week:week,comp:comp.n,weather:wx().n,
+    fixtures:fixtures,lead:lead,stories:stories.slice(0,4),
+    player:playerVoice,gossip:gossip,notes:notes.slice(0,3),
+    table:standings().map(c=>({n:c.n,pts:c.pts,w:c.w,d:c.d,l:c.l,id:c.id}))};}
+
+function settleWeek(){
+  notes=[];
+  const played=[];
+  const r=new SeededRandom(hashStr(st.club+"|s"+st.season+"|w"+st.week));
+  /* other fixture */
+  const mine=myFixture();
+  schedule(st.week).forEach(f=>{
+    if(mine&&f.h===mine.h&&f.a===mine.a)return;
+    const res=simAI(f,r);
+    played.push({h:f.h,a:f.a,hs:res.hs,as:res.as,
+      hn:clubById(f.h).n,an:clubById(f.a).n,mine:false});
+    if(isTrophyWeek(st.week)){
+      recordTrophy(st.week,f,res);
+      note("Trophy leg: "+clubById(f.h).n+" "+res.hs+"\u2013"+res.as+" "+clubById(f.a).n);
+    } else if(isCupWeek(st.week)){
+      const wid=cupWinner(f,res);
+      recordCup(st.week,wid,"",clubById(wid).n);
+      note(cupRound(st.week)+": "+clubById(wid).n+" go through ("+res.hs+"\u2013"+res.as+")");
+    } else note(clubById(f.h).n+" "+res.hs+"\u2013"+res.as+" "+clubById(f.a).n);
+  });
+  /* money */
+  const gate=st.lastGate, spon=sponsorPay(), prize=st.played?leaguePrize(st.result):0;
+  const w=wageBill(), su=stadUp(), au=acadUp(), fu=facUp();
+  const net=gate+spon+prize-w-su-au-fu;
+  st.cash+=net;
+  /* contracts tick */
+  squad.forEach(p=>{p.contract.wks--;});
+  /* development, healing */
+  developAll(r);healAll(r);
+  /* academy */
+  if(st.acad>0&&r.next()<ACAD_CHANCE[st.acad]){prospects.push(mkProspect(r));
+    note("The academy turned up a prospect.");}
+  /* market churn */
+  if(r.next()<.5&&market.length<4)market.push(mkTarget(r));
+  if(market.length>4)market.shift();
+  fas=[];const nfa=2+Math.floor(r.next()*3);
+  for(let i=0;i<nfa;i++)fas.push(mkFreeAgent(r));
+  /* offers */
+  rollOffers(r);
+  /* contract demands */
+  queueContractDemand(r);
+  /* random drama (solo only) */
+  if(st.mode==="solo")rollDrama(r);
+  if(st.played&&log&&log.raw){
+    const mf=myFixture();
+    if(mf)played.push({h:mf.h,a:mf.a,hs:log.raw.hs,as:log.raw.as,
+      hn:clubById(mf.h).n,an:clubById(mf.a).n,mine:true});}
+  st.paper=buildPaper(st.week,played);
+  st.lastGate=0;st.lastCom=0;st.played=false;st.result=null;
+  st.week++;
+  st.weather=rollWeather(r);
+  if(st.week>20)endSeason(r);
+  else{st.last="week settled: "+signed(net)+(notes.length?" · "+notes[0]:"");}
+  save();}
+
+function endSeason(r){
+  const tbl=standings();
+  const pos=tbl.findIndex(c=>c.id===st.club)+1;
+  const champ=pos===1;
+  if(champ)unlock("champ");
+  if(st.rec.l===0)unlock("perfect");
+  const wonCup=st.cup.champion===st.club;
+  const wonTro=st.trophy.champion===st.club;
+  st.cabinet.push({season:st.season,pos:pos,rec:st.rec.w+"W "+st.rec.d+"D "+st.rec.l+"L",
+    champ:champ,cup:wonCup,trophy:wonTro});
+  st.cup={semis:null,finalists:[],champion:null,out:false};
+  /* next season's continental places go to this season's top two */
+  st.trophy={qual:[tbl[0].id,tbl[1].id],agg:{},champion:null,out:false};
+  st.cash+=[60000,35000,20000,12000][pos-1]||10000;
+  st.rep=clamp(st.rep+(champ?8:pos===2?4:pos===4?-3:0),5,100);
+  /* ageing, retirement, breakout check — once per season, not per week */
+  const gone=[];
+  squad.slice().forEach(p=>{
+    if(rate(p)-p.seasonStart>=5&&p.age<=23)unlock("breakout");
+    p.age++;
+    if(r.next()<retireRisk(p.age)){gone.push(p.n+" ("+p.age+") hung up the broom.");
+      squad.splice(squad.indexOf(p),1);}
+    else p.seasonStart=rate(p);
+  });
+  clubsState.forEach(c=>{if(c.id!==st.club)c.players.forEach(p=>{p.age++;});});
+  /* fill gaps from academy/free agents so the squad is always legal */
+  while(squad.length<8){const p=mkFreeAgent(r);squad.push(p);gone.push("Signed free agent "+p.n+".");}
+  clubsState.forEach(c=>{c.w=0;c.d=0;c.l=0;c.pts=0;c.gf=0;c.ga=0;});
+  st.rec={w:0,d:0,l:0};st.last5=[];
+  st.season++;st.week=1;
+  st.cupNext--;
+  st.last="Season "+(st.season-1)+" done — finished "+pos+". "+(gone[0]||"");
+  autoPick();
+  st.locked=false;
+  queueModal({kind:"info",title:"Season "+(st.season-1)+" complete",
+    q:"Finished "+ordinal(pos)+" of 4"+(wonCup?", and won the Cup":"")+". "+
+      (champ?"Champions. The cabinet gets heavier. ":"")+
+      "Prize money paid and the squad is a year older."+(gone.length?" "+gone.join(" "):"")+
+      "<br><br>Your contract has expired. Sign on again, or walk away and found "+
+      "a new club \u2014 the cabinet follows you either way.",
+    opts:[["Sign on for another season at "+st.clubName,0,"",0],
+          ["Walk away and found a new club",0,"",0]],
+    onPick:function(i){
+      if(i===1){
+        const career=st.cabinet.slice(), ach=st.ach.slice();
+        const fresh=blankState();
+        fresh.mode="solo";fresh.sandbox=st.sandbox;fresh.screen="name";
+        fresh.cabinet=career;fresh.ach=ach;
+        fresh.last="contract ended \u2014 found a new club";
+        st=fresh;squad=[];market=[];fas=[];prospects=[];clubsState=null;log=null;
+      } else {st.locked=!st.sandbox;st.last="signed on for season "+st.season+" at "+st.clubName;}
+    }});}
+
+/* ================= offers & drama ================= */
+function rollOffers(r){
+  st.offers=[];const rep=st.rep;
+  st.offers.push({id:"o1",n:"Interview with "+MAGS[Math.floor(r.next()*MAGS.length)],
+    cash:Math.round(300+rep*14),rep:2,taken:false});
+  if(rep>=25)st.offers.push({id:"o2",n:BRANDS[Math.floor(r.next()*BRANDS.length)]+" endorsement",
+    cash:Math.round(800+rep*38),rep:1,taken:false});
+  if(rep>=40&&r.next()<.6)st.offers.push({id:"o3",n:"Charity exhibition match",
+    cash:Math.round(1500+rep*55),rep:1,risk:true,taken:false});
+  if(r.next()<.5)st.offers.push({id:"o4",n:"Tell-all with "+TABLOIDS[Math.floor(r.next()*TABLOIDS.length)],
+    cash:Math.round(1200+rep*45),rep:-4,taken:false});}
+
+function queueContractDemand(r){
+  const cands=squad.filter(p=>p.contract.wks<=6||(p.morale<40&&r.next()<.4)||
+    (rate(p)-p.seasonStart>=4&&r.next()<.3));
+  if(!cands.length)return;
+  const p=cands[Math.floor(r.next()*cands.length)];
+  const ask=Math.round(Math.max(p.contract.wage*1.35,value(p)*.0065));
+  st.pending={kind:"contract",pid:p.id,ask:ask};}
+
+function rollDrama(r){
+  if(st.pending)return;
+  const roll=r.next();
+  if(roll<.05){st.pending={kind:"fans"};}
+  else if(roll<.10&&st.last5.filter(x=>x==="L").length>=3){st.pending={kind:"sponsor"};}
+  else if(roll<.13){const p=squad[Math.floor(r.next()*squad.length)];
+    if(p)st.pending={kind:"morale",pid:p.id};}}
+
+/* ================= achievements ================= */
+function ordinal(n){const t=n%100;if(t>=11&&t<=13)return n+"th";
+  return n+({1:"st",2:"nd",3:"rd"}[n%10]||"th");}
+function unlock(id){if(st.ach.indexOf(id)<0){st.ach.push(id);
+  const a=ACHIEVEMENTS.find(x=>x.id===id);if(a)note("Achievement: "+a.n);}}
+function checkAch(){
+  if(st.rec.w>0)unlock("first_win");
+  const l5=st.last5;
+  if(l5.length>=3&&l5.slice(-3).every(x=>x==="W"))unlock("streak3");
+  if(st.attendance>=5000)unlock("gate5k");}
+
+/* ================= modal queue ================= */
+let modalQ=[];
+function queueModal(m){modalQ.push(m);showNextModal();}
+function showNextModal(){
+  if(!modalQ.length){$("modal").classList.remove("on");return;}
+  const m=modalQ[0];
+  $("mTitle").textContent=m.title;
+  $("mQ").innerHTML=m.q;
+  $("mOpts").innerHTML=m.opts.map((o,i)=>
+    '<button class="opt" data-act="choose" data-i="'+i+'"><span class="say">'+o[0]+'</span>'+
+    (o[4]!==undefined||o[1]||o[3]?'<span class="eff">'+
+      (o[1]?("reputation "+(o[1]>0?"+":"")+o[1]+" · "):"")+
+      (o[2]?("tone: "+o[2]):"")+
+      (o[3]?(" · morale "+(o[3]>0?"+":"")+o[3]):"")+'</span>':"")+
+    '</button>').join("");
+  $("modal").classList.add("on");}
+function resolveModal(i){
+  const m=modalQ.shift();
+  if(m.onPick)m.onPick(i);
+  $("modal").classList.remove("on");
+  if(modalQ.length)showNextModal();
+  paint();}
+
+function pressConference(outcome){
+  const pool=PRESS[outcome];
+  const scen=pool[Math.floor(Math.random()*pool.length)];
+  const heading=outcome==="W"?"Post-match — victory":outcome==="D"?"Post-match — draw":"Post-match — defeat";
+  queueModal({kind:"press",title:heading,
+    q:"<b>Reporter:</b> <i>"+scen.q+"</i>",
+    opts:scen.o,
+    onPick:function(i){
+      const o=scen.o[i];
+      st.rep=clamp(st.rep+o[1],5,100);
+      st.tone=o[2];
+      squad.forEach(p=>{p.morale=clamp(p.morale+o[3],5,100);});
+      st.last="press: "+o[2]+" (rep "+(o[1]>=0?"+":"")+o[1]+", morale "+(o[3]>=0?"+":"")+o[3]+")";
+    }});}
+
+function disciplinary(card){
+  queueModal({kind:"disc",title:"Disciplinary hearing",
+    q:card.name+" was sent off. The panel wants a word before the ban is confirmed.",
+    opts:[["Accept the ban. Move on.",0,"compliant",0],
+          ["Appeal it. The contact was minimal.",0,"combative",2],
+          ["Pay the £2,000 fine and say nothing.",0,"quiet",0]],
+    onPick:function(i){
+      const p=squad.find(x=>x.id===card.id);
+      if(i===1){
+        if(Math.random()<.5){if(p)p.susp=0;st.last="appeal upheld — "+card.name+" is free to play.";}
+        else{st.rep=clamp(st.rep-1,5,100);if(p)p.susp=1;
+          st.last="appeal failed — ban stands, and the press enjoyed it.";}
+      } else if(i===2){st.cash-=2000;if(p)p.susp=1;st.last="fine paid. Ban unchanged.";}
+      else{if(p)p.susp=1;st.last=card.name+" serves a one-match ban.";}
+    }});}
+
+function playerTalk(){
+  const pool=squad.filter(avail);
+  if(!pool.length)return;
+  const p=pool[Math.floor(Math.random()*pool.length)];
+  const won=st.result==="W";
+  queueModal({kind:"talk",title:"A word with "+p.n,
+    q:p.n+" ("+p.age+", "+p.p.toLowerCase()+", morale "+Math.round(p.morale)+
+      ") is waiting by the brooms after a "+(won?"win":st.result==="D"?"draw":"defeat")+".",
+    opts:[["\u201CThat was your standard. Hold it.\u201D",0,"praise",won?3:6],
+          ["\u201CNot good enough. You know it.\u201D",0,"criticise",won?-6:-2],
+          ["\u201CHow are you finding the season?\u201D",0,"listen",2]],
+    onPick:function(i){
+      const d=[won?3:6,won?-6:-2,2][i];
+      p.morale=clamp(p.morale+d,5,100);
+      st.last="talked to "+surname(p)+" — morale "+(d>=0?"+":"")+d;
+    }});}
+
+function resolvePending(){
+  if(!st.pending)return false;
+  const pend=st.pending;st.pending=null;
+  if(pend.kind==="contract"){
+    const p=squad.find(x=>x.id===pend.pid);
+    if(!p)return false;
+    queueModal({title:"Contract talks",
+      q:p.n+" ("+p.age+", rated "+rate(p)+") wants "+money(pend.ask)+
+        "/week, up from "+money(p.contract.wage)+". Contract has "+
+        Math.max(0,p.contract.wks)+" weeks left.",
+      opts:[["Agree the new terms.",0,"",4],
+            ["Offer a small rise and hope.",0,"",-2],
+            ["Refuse. He can leave.",-1,"",-8]],
+      onPick:function(i){
+        if(i===0){p.contract.wage=pend.ask;p.contract.wks+=30;p.morale=clamp(p.morale+4,5,100);
+          st.last=surname(p)+" re-signed at "+money(pend.ask)+"/wk.";}
+        else if(i===1){p.contract.wage=Math.round(p.contract.wage*1.12);p.contract.wks+=12;
+          p.morale=clamp(p.morale-2,5,100);st.last=surname(p)+" grudgingly accepted less.";}
+        else{squad.splice(squad.indexOf(p),1);st.rep=clamp(st.rep-1,5,100);
+          st.last=surname(p)+" left on a free. The fans noticed.";autoPick();}
+      }});
+    return true;}
+  if(pend.kind==="fans"){
+    queueModal({title:"Supporters' trust",
+      q:"The trust has issued a statement. They want to see change, and they want it named.",
+      opts:[["Drop a senior player to reserves.",1,"",-5],
+            ["Back the squad publicly.",-1,"",6],
+            ["Say nothing at all.",0,"",0]],
+      onPick:function(i){
+        if(i===0){const sen=squad.filter(p=>!p.bench).sort((a,b)=>b.age-a.age)[0];
+          if(sen){sen.bench=true;autoPick();sen.bench=true;}
+          st.rep=clamp(st.rep+1,5,100);squad.forEach(p=>p.morale=clamp(p.morale-5,5,100));
+          st.last="a senior man dropped. The trust is satisfied, the dressing room isn't.";}
+        else if(i===1){st.rep=clamp(st.rep-1,5,100);squad.forEach(p=>p.morale=clamp(p.morale+6,5,100));
+          st.last="backed the squad in public. They noticed.";}
+        else st.last="no comment issued.";
+      }});
+    return true;}
+  if(pend.kind==="sponsor"){
+    const s=sponsorObj();
+    queueModal({title:"Sponsor unhappy",
+      q:(s?s.n:"The sponsor")+" has seen the run of results and would like a conversation.",
+      opts:[["Apologise publicly. Promise better.",-1,"",0],
+            ["Defend the plan. Results will come.",-2,"",4],
+            ["Offer them a bigger crest for free.",0,"",0]],
+      onPick:function(i){
+        if(i===0){st.rep=clamp(st.rep-1,5,100);st.last="public apology issued.";}
+        else if(i===1){st.rep=clamp(st.rep-2,5,100);squad.forEach(p=>p.morale=clamp(p.morale+4,5,100));
+          st.last="held the line. The squad liked it, the press didn't.";}
+        else{st.cash-=3000;st.last="sweetened the deal at your own cost.";}
+      }});
+    return true;}
+  if(pend.kind==="morale"){
+    const p=squad.find(x=>x.id===pend.pid);
+    if(!p)return false;
+    queueModal({title:"Dressing room",
+      q:p.n+" has been training badly and someone has told a reporter about it.",
+      opts:[["Handle it privately.",0,"",5],
+            ["Fine him a week's wages.",1,"",-7],
+            ["Ignore it.",-1,"",-2]],
+      onPick:function(i){
+        if(i===0){p.morale=clamp(p.morale+5,5,100);st.last="handled quietly.";}
+        else if(i===1){st.cash+=p.contract.wage;p.morale=clamp(p.morale-7,5,100);
+          st.rep=clamp(st.rep+1,5,100);st.last=surname(p)+" fined.";}
+        else{st.rep=clamp(st.rep-1,5,100);p.morale=clamp(p.morale-2,5,100);st.last="left alone.";}
+      }});
+    return true;}
+  return false;}
+
+/* ================= match flow ================= */
+function kickoff(){
+  const f=myFixture();
+  if(!f){st.last=isCupWeek(st.week)?"you are not in this "+cupRound(st.week).toLowerCase()
+    :"no fixture this week";return;}
+  const atHome=f.h===st.club;
+  st.attendance=atHome?attendanceFor(st.price):0;
+  st.lastGate=atHome?st.attendance*st.price:0;
+  st.lastCom=atHome?commerceTake(st.attendance):0;
+  const opp=clubById(f.h===st.club?f.a:f.h);
+  const oppAI=CLUBS.find(c=>c.id===opp.id).ai;
+  const home=atHome;
+  const me={n:clubById(st.club).n,players:active().filter(avail),all:squad};
+  const them={n:opp.n,players:opp.players.filter(avail),all:opp.players};
+  const r=new SeededRandom(st.sandbox?(Math.random()*4294967296)>>>0
+    :hashStr(st.club+"|s"+st.season+"|w"+st.week+"|m"));
+  const aiAg=r.next()<oppAI.ag;
+  const aiTempo=oppAI.ag>.6?"fast":oppAI.spend>.6?"balanced":"patient";
+  const aiTarget=oppAI.sf>=4?"seeker":"chasers";
+  const mine_={form:st.form,sf:st.sf,ag:st.ag,tempo:st.tempo,btarget:st.btarget,
+    shadow:st.shadow,broom:FACS.broom.eff[st.fac.broom],bribe:st.bribe};
+  const theirs_={form:oppAI.form,sf:oppAI.sf,ag:aiAg,tempo:aiTempo,btarget:aiTarget,
+    shadow:false,broom:0};
+  const opts=home
+    ?{form:mine_.form,aform:theirs_.form,sf:mine_.sf,asf:theirs_.sf,ag:mine_.ag,aag:theirs_.ag,
+      tempo:mine_.tempo,atempo:theirs_.tempo,btarget:mine_.btarget,abtarget:theirs_.btarget,
+      shadow:mine_.shadow,ashadow:theirs_.shadow,bribe:mine_.bribe,
+      broom:mine_.broom,abroom:theirs_.broom,snitch:st.snitch,weather:st.weather}
+    :{form:theirs_.form,aform:mine_.form,sf:theirs_.sf,asf:mine_.sf,ag:theirs_.ag,aag:mine_.ag,
+      tempo:theirs_.tempo,atempo:mine_.tempo,btarget:theirs_.btarget,abtarget:mine_.btarget,
+      shadow:theirs_.shadow,ashadow:mine_.shadow,bribe:false,
+      broom:theirs_.broom,abroom:mine_.broom,snitch:st.snitch,weather:st.weather};
+  const raw=home?simulate(me,them,opts,r):simulate(them,me,opts,r);
+  log={raw:raw,home:home,myName:me.n,oppName:them.n,
+    myScore:home?raw.hs:raw.as,oppScore:home?raw.as:raw.hs};
+  st.min=0;st.hs=0;st.as=0;st.ended=false;st.run=true;
+  $("hl").innerHTML="";
+  playbackStart();}
+
+let pbIndex=0,pbTimer=null;
+function playbackStart(){
+  pbIndex=0;clearInterval(pbTimer);
+  pbTimer=setInterval(step,850/st.speed);}
+function step(){
+  const raw=log.raw;
+  if(pbIndex>=raw.log.length){finishMatch();return;}
+  const e=raw.log[pbIndex++];
+  st.min=e.min;st.hs=e.h;st.as=e.a;
+  $("lmin").textContent=e.min?e.min+"'":"—";
+  $("ltxt").textContent=e.txt;
+  if(e.type){const d=document.createElement("div");d.className=e.type;
+    d.innerHTML="<b>"+(e.min||0)+"'</b> "+e.txt;$("hl").prepend(d);}
+  paintBoard();}
+function finishMatch(){
+  clearInterval(pbTimer);pbTimer=null;
+  st.run=false;st.ended=true;st.played=true;
+  st.hs=log.raw.hs;st.as=log.raw.as;
+  const mine=log.myScore,theirs=log.oppScore;
+  const res=mine>theirs?"W":mine<theirs?"L":"D";
+  st.result=res;
+  if(compOf(st.week)==="league"){
+    if(res==="W")st.rec.w++;else if(res==="L")st.rec.l++;else st.rec.d++;
+  }
+  st.last5.push(res);if(st.last5.length>5)st.last5.shift();
+  st.rep=clamp(st.rep+(res==="W"?3:res==="D"?1:-1),5,100);
+  squad.forEach(p=>{p.morale=clamp(p.morale+(res==="W"?4:res==="D"?0:-4),5,100);
+    if(!p.bench)p.sk.exp=clamp(p.sk.exp+.4,20,99);});
+  /* bookkeeping for my fixture — cup ties carry no league points */
+  const f=myFixture();
+  const h=clubById(f.h),a=clubById(f.a);
+  if(isTrophyWeek(st.week)){
+    recordTrophy(st.week,f,log.raw);
+  } else if(isCupWeek(st.week)){
+    const wid=cupWinner(f,log.raw);
+    recordCup(st.week,wid,"",clubById(wid).n);
+    if(wid!==st.club)st.cup.out=true;
+  } else applyResult(h,a,log.raw);
+  const meClub=clubById(st.club);
+  applyPhysical(meClub,log.raw,log.home);
+  /* mirror injuries onto my squad objects */
+  log.raw.inj.forEach(i=>{const p=squad.find(x=>x.id===i.id);
+    if(p){p.inj=i.wks;p.injTxt=i.txt;}});
+  const oppClub=clubById(f.h===st.club?f.a:f.h);
+  applyPhysical(oppClub,log.raw,!log.home);
+  checkAch();
+  /* bribery exposure — the League does occasionally notice */
+  if(st.bribe){
+    const caught=Math.random()<(st.bribeHeat>0?.30:.12);
+    st.bribe=false;
+    if(caught){
+      const fine=Math.round(8000+st.rep*150);
+      st.cash-=fine;st.rep=clamp(st.rep-6,5,100);st.bribeHeat=4;
+      queueModal({title:"The League has questions",
+        q:"An official has reported an approach before the "+log.oppName+" match. "+
+          "You are fined "+money(fine)+", your reputation takes a public beating, and "+
+          "the disciplinary panel will be watching your next four matches closely.",
+        opts:[["Say nothing",0,"",0]]});
+    } else st.last+=" \u2014 the official stayed bought";
+  }
+  if(st.bribeHeat>0)st.bribeHeat--;
+  $("pb").textContent="Full time";
+  st.last="full time: "+log.myName+" "+mine+"–"+theirs+" "+log.oppName;
+  /* solo drama chain: press conference, red cards, player talk */
+  if(st.mode==="solo"){
+    pressConference(res);
+    const myRed=log.raw.cards.filter(c=>c.red&&c.home===log.home&&squad.some(p=>p.id===c.id));
+    if(myRed.length)disciplinary(myRed[0]);
+    playerTalk();
+  } else {
+    queueModal({title:"Match report",
+      q:"<b>"+log.myName+" "+mine+"–"+theirs+" "+log.oppName+"</b><br>"+autoRecap(res),
+      opts:[["Noted",0,"",0]],
+      onPick:function(){st.rep=clamp(st.rep+(res==="W"?2:res==="D"?1:-1),5,100);}});
+  }
+  autoPick();
+  save();paint();}
+function autoRecap(res){
+  const raw=log.raw;const bits=[];
+  if(raw.cards.filter(c=>c.red).length)bits.push("a sending-off");
+  if(raw.inj.length)bits.push(raw.inj.length+" injury"+(raw.inj.length>1?"s":""));
+  if(raw.snitches>1)bits.push(raw.snitches+" snitch catches");
+  const tail=bits.length?" Notable: "+bits.join(", ")+".":"";
+  return (res==="W"?"A win, and the table shifts.":res==="D"?"Honours even.":"Beaten.")+tail;}
+
+
+
+/* ================= visual helpers ================= */
+function myClub(){return st.club?clubById(st.club):null;}
+function myCol(){const a=CLUBS.find(c=>c.id===st.club);return a?a.col:"#8C3A4C";}
+function myCol2(){const a=CLUBS.find(c=>c.id===st.club);return a?a.col2:"#F0CBD4";}
+function myGround(){return st.groundName||"The Ground";}
+function shirtNo(p){
+  /* stable per player: keepers 1, seekers 7, others from their id */
+  if(p.p==="Keeper")return 1;
+  if(p.p==="Seeker")return 7;
+  const n=2+(hashStr(p.id)%4);
+  return p.p==="Beater"?(n>3?2:n):(n<4?4:n);}
+function captainOf(list){
+  return list.slice().sort((a,b)=>(b.sk.exp+b.age)-(a.sk.exp+a.age))[0];}
+
+/* A jersey with a number, used on the pitch and the teamsheet. */
+function jersey(p,x,y,scale,col,col2){
+  const sc=scale||1, w=26*sc, h=30*sc;
+  const inj=p&&p.inj>0, sus=p&&p.susp>0;
+  const body=inj?"#6B4A4A":sus?"#5A5060":col;
+  const nm=p?(p.sk?surname(p):p.n):"\u2014";
+  const no=p?shirtNo(p):"";
+  const rt=(p&&p.sk)?rate(p):null;
+  return '<g transform="translate('+(x-w/2)+','+(y-h/2)+')">'+
+    '<path d="M'+(w*.22)+' 0 L'+(w*.36)+' '+(h*.10)+' L'+(w*.64)+' '+(h*.10)+' L'+(w*.78)+' 0 '+
+      'L'+w+' '+(h*.22)+' L'+(w*.82)+' '+(h*.40)+' L'+(w*.82)+' '+h+' L'+(w*.18)+' '+h+' '+
+      'L'+(w*.18)+' '+(h*.40)+' L0 '+(h*.22)+' Z" fill="'+body+'" stroke="'+col2+
+      '" stroke-width="'+(1.1*sc)+'" stroke-linejoin="round"/>'+
+    '<text x="'+(w/2)+'" y="'+(h*.72)+'" text-anchor="middle" font-size="'+(13*sc)+
+      '" font-family="ui-monospace,monospace" fill="'+col2+'">'+no+'</text>'+
+    '<text x="'+(w/2)+'" y="'+(h+11*sc)+'" text-anchor="middle" font-size="'+(9.5*sc)+
+      '" fill="#E8E3D9">'+nm+'</text>'+
+    (rt!==null?'<text x="'+(w/2)+'" y="'+(h+21*sc)+'" text-anchor="middle" font-size="'+(8.5*sc)+
+      '" font-family="ui-monospace,monospace" fill="'+(rt>=85?"#5FA773":rt>=75?"#8698AA":"#C4614F")+
+      '">'+rt+(inj?" hurt":sus?" ban":"")+'</text>':"")+
+    '</g>';}
+
+/* Top-down pitch with the starting seven in position. */
+function pitchSVG(){
+  const L=lineup(active());
+  const col=myCol(),col2=myCol2();
+  const W=520,H=330;
+  let g='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">';
+  g+='<defs><radialGradient id="turf" cx="50%" cy="50%"><stop offset="0%" stop-color="#1B2A22"/>'+
+     '<stop offset="100%" stop-color="#121C17"/></radialGradient></defs>';
+  g+='<rect width="'+W+'" height="'+H+'" rx="14" fill="url(#turf)" stroke="#2A3949"/>';
+  for(let i=1;i<6;i++)g+='<line x1="0" y1="'+(H/6*i)+'" x2="'+W+'" y2="'+(H/6*i)+
+    '" stroke="#1E3129" stroke-width="'+(i%2?6:3)+'"/>';
+  g+='<ellipse cx="'+(W/2)+'" cy="'+(H/2)+'" rx="46" ry="34" fill="none" stroke="#2C4438" stroke-width="2"/>';
+  /* three hoops at each end */
+  [[46,"#C9A227"],[W-46,"#7A8794"]].forEach(function(e){
+    [H/2-52,H/2,H/2+52].forEach(function(y,i){
+      const r=i===1?17:13;
+      g+='<ellipse cx="'+e[0]+'" cy="'+y+'" rx="'+(r*.62)+'" ry="'+r+
+        '" fill="none" stroke="'+e[1]+'" stroke-width="3"/>';
+      g+='<line x1="'+e[0]+'" y1="'+(y+r)+'" x2="'+e[0]+'" y2="'+(H/2+70)+
+        '" stroke="'+e[1]+'" stroke-width="2" opacity=".55"/>';});});
+  /* our half is the left; positions reflect the shape */
+  const shapeX={"Parkin's Pincer":[120,190,250],"Hawkshead":[150,230,300],"Porskoff":[130,200,255]};
+  const cx=shapeX[st.form]||shapeX.Hawkshead;
+  g+=jersey(L.gk,96,H/2,1,col,col2);
+  g+=jersey(L.bt[0],168,H/2-92,1,col,col2);
+  g+=jersey(L.bt[1],168,H/2+92,1,col,col2);
+  g+=jersey(L.ch[0],cx[0]+60,H/2-58,1,col,col2);
+  g+=jersey(L.ch[1],cx[1]+60,H/2,1,col,col2);
+  g+=jersey(L.ch[2],cx[2]+40,H/2+58,1,col,col2);
+  g+=jersey(L.sk,W-92,H/2-72,1,col,col2);
+  /* snitch marker, drifting according to seeker focus */
+  const sx=W-70-(5-st.sf)*26;
+  g+='<circle cx="'+sx+'" cy="'+(H/2+64)+'" r="5" fill="#C9A227"/>'+
+     '<path d="M'+(sx-13)+' '+(H/2+60)+' q6 -6 11 1" stroke="#C9A227" fill="none" stroke-width="1.5"/>'+
+     '<path d="M'+(sx+13)+' '+(H/2+60)+' q-6 -6 -11 1" stroke="#C9A227" fill="none" stroke-width="1.5"/>';
+  g+='<text x="'+(W-14)+'" y="20" text-anchor="end" font-size="10" fill="#8698AA" '+
+     'font-family="ui-monospace,monospace">'+st.form.toUpperCase()+'</text>';
+  g+='</svg>';
+  return g;}
+
+/* ---- stadium art ----
+   One drawing routine, four architectures, four build stages. A ground starts as a roped
+   field and ends as a floodlit bowl; the style decides what the stands are made of. */
+const SKY={
+ clear:["#2A3E52","#4A6479"],rain:["#232B33","#3A4652"],wind:["#2B3340","#47525F"],
+ fog:["#3A4048","#5A6169"],snow:["#39414B","#5E6772"],crisp:["#1E3550","#48709B"]};
+
+function crowdDots(cx,cy,rx,ry,rings,fill,density,seed){
+  const r=new SeededRandom(seed>>>0);let g="";
+  for(let k=0;k<rings;k++){
+    const RX=rx+k*7, RY=ry+k*4.2;
+    for(let i=0;i<70;i++){
+      if(r.next()>density)continue;
+      const th=Math.PI+ (i/70)*Math.PI;           /* upper arc only */
+      const x=cx+Math.cos(th)*RX, y=cy+Math.sin(th)*RY;
+      g+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="1.5" fill="'+fill+
+         '" opacity="'+(0.35+r.next()*0.5).toFixed(2)+'"/>';}}
+  return g;}
+
+function bunting(cx,cy,rx,ry,cols,seed){
+  const r=new SeededRandom((seed+7)>>>0);let g="";
+  for(let i=0;i<26;i++){
+    const th=Math.PI+(i/25)*Math.PI;
+    const x=cx+Math.cos(th)*rx, y=cy+Math.sin(th)*ry;
+    const c=cols[Math.floor(r.next()*cols.length)];
+    g+='<path d="M'+x.toFixed(1)+' '+y.toFixed(1)+' l4 0 l-2 7 Z" fill="'+c+'" opacity=".85"/>';}
+  return g;}
+
+function hoops(cx,cy,col){
+  let g="";
+  [[-30,13],[0,17],[30,13]].forEach(function(o){
+    const x=cx+o[0], r=o[1];
+    g+='<line x1="'+x+'" y1="'+(cy-2)+'" x2="'+x+'" y2="'+(cy+16)+'" stroke="'+col+
+       '" stroke-width="1.6" opacity=".9"/>';
+    g+='<ellipse cx="'+x+'" cy="'+(cy-r*0.55)+'" rx="'+(r*0.42)+'" ry="'+(r*0.5)+
+       '" fill="none" stroke="'+col+'" stroke-width="2"/>';});
+  return g;}
+
+function stadiumArt(opt){
+  const tier=opt.tier, cond=clamp(opt.condition,0,100)/100, style=opt.arch||"amphitheatre";
+  const col=opt.col, col2=opt.col2, W=520, H=300;
+  const cx=W/2, cy=H*0.60;
+  const sky=SKY[opt.weather]||SKY.clear;
+  const seed=hashStr(style+tier+(opt.name||""));
+  const fill=clamp(opt.fill===undefined?0.7:opt.fill,0.08,1);
+  const stands=tier+1;
+  const pRX=96, pRY=40;                                  /* the pitch */
+  const oRX=pRX+26+stands*15, oRY=pRY+13+stands*8;       /* outside of the stands */
+  const rimY=cy-oRY;                                     /* back rim: architecture sits here */
+  let g='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">';
+  g+='<defs><linearGradient id="sky'+seed+'" x1="0" y1="0" x2="0" y2="1">'+
+     '<stop offset="0%" stop-color="'+sky[0]+'"/><stop offset="100%" stop-color="'+sky[1]+'"/>'+
+     '</linearGradient>'+
+     '<radialGradient id="pitch'+seed+'" cx="50%" cy="40%">'+
+     '<stop offset="0%" stop-color="#31503B"/><stop offset="100%" stop-color="#1B2E22"/>'+
+     '</radialGradient>'+
+     '<linearGradient id="bowl'+seed+'" x1="0" y1="0" x2="0" y2="1">'+
+     '<stop offset="0%" stop-color="#3B4654"/><stop offset="55%" stop-color="#2A3341"/>'+
+     '<stop offset="100%" stop-color="#39434F"/></linearGradient></defs>';
+  g+='<rect width="'+W+'" height="'+H+'" rx="14" fill="url(#sky'+seed+')"/>';
+  if(opt.weather==="snow"||opt.weather==="rain"){
+    const r=new SeededRandom(seed+3);
+    for(let i=0;i<70;i++){const x=r.next()*W, y=r.next()*H*0.55;
+      g+= opt.weather==="snow"
+        ?'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="1.3" fill="#DCE6F0" opacity=".5"/>'
+        :'<line x1="'+x.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+(x-3).toFixed(1)+'" y2="'+
+          (y+9).toFixed(1)+'" stroke="#9FB4C7" stroke-width="1" opacity=".35"/>';}}
+
+  /* ---- architecture, standing on the back rim ---- */
+  const base=cy-oRY*0.42;   /* feet tuck behind the bowl, which is drawn over them */
+  if(style==="castle"){
+    const wallH=30+tier*7;
+    g+='<rect x="'+(cx-oRX*0.86)+'" y="'+(base-wallH)+'" width="'+(oRX*1.72)+'" height="'+wallH+
+       '" fill="#343B44" stroke="#232932"/>';
+    for(let b=0;b<Math.floor((oRX*1.72)/16);b++)
+      g+='<rect x="'+(cx-oRX*0.86+b*16)+'" y="'+(base-wallH-7)+'" width="9" height="8" fill="#343B44"/>';
+    [-oRX*0.82,-oRX*0.30,oRX*0.30,oRX*0.82].forEach(function(dx,i){
+      const th=44+tier*9, tw=30;
+      g+='<rect x="'+(cx+dx-tw/2)+'" y="'+(base-wallH-th)+'" width="'+tw+'" height="'+(th+wallH)+
+         '" fill="#3C434D" stroke="#232932"/>';
+      for(let b=0;b<3;b++)g+='<rect x="'+(cx+dx-tw/2+b*11)+'" y="'+(base-wallH-th-7)+
+        '" width="7" height="8" fill="#3C434D"/>';
+      g+='<rect x="'+(cx+dx-4)+'" y="'+(base-wallH-th+14)+'" width="8" height="12" rx="4" fill="#12171D"/>';
+      g+='<line x1="'+(cx+dx)+'" y1="'+(base-wallH-th-7)+'" x2="'+(cx+dx)+'" y2="'+
+         (base-wallH-th-30)+'" stroke="#8A94A2" stroke-width="1.5"/>';
+      g+='<path d="M'+(cx+dx)+' '+(base-wallH-th-30)+' l0 11 l17 -5 Z" fill="'+(i%2?col2:col)+'"/>';});
+    for(let i=0;i<8;i++)g+='<rect x="'+(cx-oRX*0.78+i*((oRX*1.56)/8))+'" y="'+(base-wallH+9)+
+      '" width="16" height="9" fill="'+col+'" opacity=".75"/>';
+  } else if(style==="chateau"){
+    const wallH=26+tier*5;
+    g+='<rect x="'+(cx-oRX*0.84)+'" y="'+(base-wallH)+'" width="'+(oRX*1.68)+'" height="'+wallH+
+       '" fill="#39414C" stroke="#242A33"/>';
+    g+='<rect x="'+(cx-62)+'" y="'+(base-wallH-46-tier*6)+'" width="124" height="'+(46+tier*6)+
+       '" fill="#3E4854" stroke="#242A33"/>';
+    g+='<path d="M'+(cx-70)+' '+(base-wallH-46-tier*6)+' L'+cx+' '+(base-wallH-78-tier*8)+' L'+
+       (cx+70)+' '+(base-wallH-46-tier*6)+' Z" fill="#47535F" stroke="#242A33"/>';
+    for(let r0=0;r0<2;r0++)for(let c0=0;c0<5;c0++)
+      g+='<rect x="'+(cx-50+c0*22)+'" y="'+(base-wallH-36-tier*6+r0*19)+
+        '" width="11" height="13" rx="2" fill="#151B22"/>';
+    [-oRX*0.80,-oRX*0.44,oRX*0.44,oRX*0.80].forEach(function(dx){
+      const th=52+tier*9;
+      g+='<rect x="'+(cx+dx-13)+'" y="'+(base-wallH-th)+'" width="26" height="'+(th+wallH)+
+         '" fill="#3E4854" stroke="#242A33"/>';
+      g+='<path d="M'+(cx+dx-18)+' '+(base-wallH-th)+' L'+(cx+dx)+' '+(base-wallH-th-30)+' L'+
+         (cx+dx+18)+' '+(base-wallH-th)+' Z" fill="#4A5663" stroke="#242A33"/>';
+      g+='<path d="M'+(cx+dx)+' '+(base-wallH-th-30)+' l0 -12 l15 4 l-15 4 Z" fill="'+col+'"/>';
+      g+='<rect x="'+(cx+dx-4)+'" y="'+(base-wallH-th+16)+'" width="9" height="14" rx="4.5" fill="#12171D"/>';});
+  } else if(style==="modern"){
+    g+='<path d="M'+(cx-oRX-14)+' '+(base+10)+' Q'+cx+' '+(base-104-tier*14)+' '+(cx+oRX+14)+
+       ' '+(base+10)+'" fill="#3A4插"/>';
+    g=g.replace('#3A4插','#39424D');
+    g+='<path d="M'+(cx-oRX-14)+' '+(base+10)+' Q'+cx+' '+(base-96-tier*14)+' '+(cx+oRX+14)+
+       ' '+(base+10)+' L'+(cx+oRX-2)+' '+(base+10)+' Q'+cx+' '+(base-78-tier*14)+' '+(cx-oRX+2)+
+       ' '+(base+10)+' Z" fill="#48535F" stroke="#2A323B"/>';
+    if(tier>=1)[[-oRX+8],[oRX-8]].forEach(function(p){
+      const x=cx+p[0], top=base-56-tier*10;
+      g+='<line x1="'+x+'" y1="'+(base+4)+'" x2="'+x+'" y2="'+top+'" stroke="#55606E" stroke-width="4"/>';
+      g+='<rect x="'+(x-22)+'" y="'+(top-15)+'" width="44" height="15" rx="3" fill="#626F80"/>';
+      for(let l=0;l<5;l++)g+='<circle cx="'+(x-16+l*8)+'" cy="'+(top-7)+'" r="3.2" fill="#FBFBE4"/>';
+      g+='<path d="M'+(x-24)+' '+top+' L'+(x+24)+' '+top+' L'+(cx+p[0]*0.25)+' '+cy+' Z" '+
+         'fill="#FBFBE4" opacity=".055"/>';});
+  } else {
+    const wallH=40+tier*8;
+    const aWidth=oRX*1.74;
+    g+='<rect x="'+(cx-aWidth/2)+'" y="'+(base-wallH)+'" width="'+aWidth+'" height="'+wallH+
+       '" fill="#3A322B" stroke="#241E19"/>';
+    const n=9, aw=aWidth/n;
+    for(let i=0;i<n;i++){
+      const x=cx-aWidth/2+i*aw+3;
+      g+='<path d="M'+x+' '+(base-4)+' l0 -'+(wallH-20)+' a'+((aw-6)/2)+' '+((aw-6)/2)+
+         ' 0 0 1 '+(aw-6)+' 0 l0 '+(wallH-20)+' Z" fill="#1C1713"/>';}
+    for(let i=0;i<n;i++)g+='<rect x="'+(cx-aWidth/2+i*aw)+'" y="'+(base-wallH-8)+'" width="'+(aw-3)+
+      '" height="8" fill="#463C33"/>';
+    if(tier>=1)for(let i=0;i<n;i+=2)
+      g+='<rect x="'+(cx-aWidth/2+i*aw+aw*0.25)+'" y="'+(base-wallH-30)+'" width="'+(aw*0.5)+
+        '" height="24" fill="'+col+'" opacity=".8"/>';}
+
+  /* ---- the bowl: a full ring of seating around the pitch ---- */
+  g+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+oRX+'" ry="'+oRY+'" fill="url(#bowl'+seed+')" stroke="#222B36"/>';
+  for(let k=stands;k>=1;k--){
+    const f=k/stands;
+    g+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+(pRX+(oRX-pRX)*f)+'" ry="'+(pRY+(oRY-pRY)*f)+
+       '" fill="none" stroke="#1E2732" stroke-width="1.4" opacity=".9"/>';}
+  /* crowd, all the way round, thinner where the ground is poor or half empty */
+  {const r=new SeededRandom(seed+5), dens=clamp(fill*(0.45+cond*0.55),0.08,0.95);
+   for(let k=0;k<stands;k++){
+     const t=(k+0.6)/stands;
+     const RX=pRX+(oRX-pRX)*t, RY=pRY+(oRY-pRY)*t;
+     for(let i=0;i<300;i++){
+       if(r.next()>dens)continue;
+       const th=(i/300)*Math.PI*2;
+       const x=cx+Math.cos(th)*RX, y=cy+Math.sin(th)*RY;
+       g+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="1.05" fill="'+
+          (r.next()<0.3?col2:(r.next()<0.5?col:"#C7CDD6"))+
+          '" opacity="'+(0.4+r.next()*0.5).toFixed(2)+'"/>';}}}
+  /* bunting on the rim */
+  {const r=new SeededRandom(seed+7), cols=[col,col2,"#C9A227"];
+   for(let i=0;i<40;i++){
+     const th=(i/40)*Math.PI*2;
+     const x=cx+Math.cos(th)*(oRX-3), y=cy+Math.sin(th)*(oRY-2);
+     g+='<path d="M'+x.toFixed(1)+' '+y.toFixed(1)+' l2.6 0 l-1.3 4.5 Z" fill="'+
+        cols[Math.floor(r.next()*cols.length)]+'" opacity=".9"/>';}}
+
+  /* ---- pitch ---- */
+  g+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+pRX+'" ry="'+pRY+'" fill="url(#pitch'+seed+')" stroke="#2C4438"/>';
+  for(let i=1;i<6;i++)g+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+(pRX*(1-i*0.16))+'" ry="'+
+    (pRY*(1-i*0.16))+'" fill="none" stroke="#25392D" stroke-width="'+(i%2?2.5:1.2)+'" opacity=".5"/>';
+  g+=hoops(cx-52,cy-4,"#C9A227")+hoops(cx+52,cy-4,"#9AA6B2");
+  {const fr=new SeededRandom(seed+11);
+   for(let i=0;i<6;i++){
+     const x=cx-64+fr.next()*128, y=cy-30-fr.next()*22;
+     g+='<line x1="'+x.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+(x+9).toFixed(1)+'" y2="'+
+       (y+3).toFixed(1)+'" stroke="#8A6B3F" stroke-width="2"/>'+
+       '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.6" fill="'+col+'" stroke="'+col2+
+       '" stroke-width=".7"/>';}}
+  if(opt.weather==="fog")
+    g+='<rect width="'+W+'" height="'+H+'" fill="#7C848C" opacity=".20"/>';
+  if(opt.name)
+    g+='<text x="'+cx+'" y="'+(H-11)+'" text-anchor="middle" font-family="Georgia,serif" '+
+       'font-size="13" fill="#E8E3D9">'+opt.name+'</text>';
+  g+='</svg>';
+  return g;}
+
+/* Top-down ground that grows with the tier. */
+function stadiumSVG(){
+  const W=520,H=300,cx=W/2,cy=H/2,t=st.tier;
+  const cond=st.condition/100;
+  let g='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">';
+  g+='<rect width="'+W+'" height="'+H+'" rx="14" fill="#101A22" stroke="#2A3949"/>';
+  /* stands: one ring per tier, outermost only when built */
+  for(let i=3;i>=0;i--){
+    if(i>t)continue;
+    const rx=108+i*46, ry=64+i*26;
+    const wear=0.35+cond*0.65;
+    g+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+
+      '" fill="none" stroke="'+(i===t?myCol():"#243040")+'" stroke-width="'+(11-i*1.4)+
+      '" opacity="'+(i===t?wear:0.55)+'"/>';
+    if(i===t){
+      /* seats suggested by ticks around the outer ring */
+      for(let a=0;a<44;a++){
+        const th=a/44*Math.PI*2;
+        const x1=cx+Math.cos(th)*(rx-5), y1=cy+Math.sin(th)*(ry-4);
+        const x2=cx+Math.cos(th)*(rx+5), y2=cy+Math.sin(th)*(ry+4);
+        g+='<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+
+          '" y2="'+y2.toFixed(1)+'" stroke="'+myCol2()+'" stroke-width="1.4" opacity="'+
+          (0.25+cond*0.55)+'"/>';}}}
+  /* ghost ring for what the next expansion would add */
+  if(t<3){const rx=108+(t+1)*46, ry=64+(t+1)*26;
+    g+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+
+      '" fill="none" stroke="#3A4A5C" stroke-width="2" stroke-dasharray="7 7" opacity=".7"/>'+
+      '<text x="'+cx+'" y="'+(cy-ry-8)+'" text-anchor="middle" font-size="10" fill="#8698AA" '+
+      'font-family="ui-monospace,monospace">NEXT: '+CAP[t+1].toLocaleString()+' SEATS</text>';}
+  /* the pitch itself */
+  g+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="92" ry="50" fill="#16241C" stroke="#25402F"/>';
+  [cx-66,cx+66].forEach(function(x,i){[cy-16,cy,cy+16].forEach(function(y){
+    g+='<ellipse cx="'+x+'" cy="'+y+'" rx="3.4" ry="6" fill="none" stroke="'+
+      (i?"#7A8794":"#C9A227")+'" stroke-width="1.6"/>';});});
+  g+='<text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" font-size="12" fill="#E8E3D9" '+
+     'font-family="Georgia,serif">'+myGround()+'</text>';
+  /* condition bar along the bottom */
+  g+='<rect x="18" y="'+(H-22)+'" width="'+(W-36)+'" height="6" rx="3" fill="#243040"/>';
+  g+='<rect x="18" y="'+(H-22)+'" width="'+((W-36)*cond)+'" height="6" rx="3" fill="'+
+     (st.condition<EXPAND_MIN?"#C4614F":"#5FA773")+'"/>';
+  g+='<text x="18" y="'+(H-28)+'" font-size="9.5" fill="#8698AA" font-family="ui-monospace,monospace">'+
+     'CONDITION '+Math.round(st.condition)+'% \u00B7 CAPACITY '+CAP[t].toLocaleString()+'</text>';
+  g+='</svg>';
+  return g;}
+
+/* Academy grounds: same footprint each level, more built on it. */
+function academySVG(){
+  const W=520,H=260,lv=st.acad;
+  let g='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">';
+  g+='<rect width="'+W+'" height="'+H+'" rx="14" fill="#101A22" stroke="#2A3949"/>';
+  g+='<rect x="26" y="26" width="'+(W-52)+'" height="'+(H-52)+'" rx="10" fill="#16241C" stroke="#25402F"/>';
+  if(lv===0){
+    g+='<text x="'+(W/2)+'" y="'+(H/2)+'" text-anchor="middle" font-size="13" fill="#8698AA">'+
+       'An empty field behind the ground.</text>';
+  } else {
+    /* practice pitch */
+    g+='<ellipse cx="150" cy="'+(H/2)+'" rx="86" ry="56" fill="#1B2A22" stroke="#2C4438"/>';
+    [110,150,190].forEach(function(x){g+='<ellipse cx="'+x+'" cy="'+(H/2-34)+
+      '" rx="3" ry="5.4" fill="none" stroke="#C9A227" stroke-width="1.4"/>';});
+    /* trainees, more of them each level */
+    const n=lv*3;
+    for(let i=0;i<n;i++){
+      const a=i/n*Math.PI*2, x=150+Math.cos(a)*54, y=H/2+Math.sin(a)*34;
+      g+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4" fill="'+myCol()+
+        '" stroke="'+myCol2()+'" stroke-width="1"/>';
+      g+='<line x1="'+(x+4).toFixed(1)+'" y1="'+(y-4).toFixed(1)+'" x2="'+(x+13).toFixed(1)+
+        '" y2="'+(y-11).toFixed(1)+'" stroke="#8A6B3F" stroke-width="1.6"/>';}
+    /* buildings appear with level */
+    const blocks=[["Broom shed",280,60,90,44],["Dormitory",280,120,120,52],
+                  ["Physio room",280,190,150,40]];
+    blocks.slice(0,lv).forEach(function(b,i){
+      g+='<rect x="'+b[1]+'" y="'+b[2]+'" width="'+b[3]+'" height="'+b[4]+'" rx="5" fill="#1D2836" '+
+        'stroke="'+myCol()+'" stroke-width="1.4"/>';
+      for(let w=0;w<Math.floor(b[3]/26);w++)
+        g+='<rect x="'+(b[1]+9+w*26)+'" y="'+(b[2]+11)+'" width="12" height="11" rx="2" fill="'+
+          myCol2()+'" opacity=".5"/>';
+      g+='<text x="'+(b[1]+b[3]/2)+'" y="'+(b[2]+b[4]-9)+'" text-anchor="middle" font-size="9.5" '+
+        'fill="#8698AA" font-family="ui-monospace,monospace">'+b[0].toUpperCase()+'</text>';});
+  }
+  g+='<text x="26" y="18" font-size="9.5" fill="#8698AA" font-family="ui-monospace,monospace">'+
+     'ACADEMY LEVEL '+lv+' \u00B7 '+Math.round(ACAD_CHANCE[lv]*100)+'% INTAKE CHANCE</text>';
+  g+='</svg>';
+  return g;}
+
+/* The manager's office: a desk that fills up as the club grows. */
+function officeSVG(){
+  const W=520,H=270;
+  const trophies=st.cabinet.filter(c=>c.champ||c.cup||c.trophy).length;
+  let g='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">';
+  g+='<rect width="'+W+'" height="'+H+'" rx="14" fill="#141C26" stroke="#2A3949"/>';
+  /* window onto the ground */
+  g+='<rect x="30" y="28" width="150" height="104" rx="6" fill="#0E1620" stroke="#2A3949"/>';
+  g+='<ellipse cx="105" cy="96" rx="58" ry="26" fill="#16241C" stroke="#25402F"/>';
+  g+='<circle cx="150" cy="52" r="11" fill="#C9A227" opacity=".5"/>';
+  g+='<line x1="30" y1="80" x2="180" y2="80" stroke="#2A3949"/>'+
+     '<line x1="105" y1="28" x2="105" y2="132" stroke="#2A3949"/>';
+  /* trophy shelf */
+  g+='<rect x="205" y="34" width="'+(W-240)+'" height="4" rx="2" fill="#3A2C1E"/>';
+  for(let i=0;i<Math.min(6,trophies);i++){
+    const x=222+i*44;
+    g+='<path d="M'+(x-9)+' 6 h18 v8 a9 9 0 0 1 -18 0 Z" transform="translate(0,12)" fill="#C9A227"/>'+
+       '<rect x="'+(x-2)+'" y="26" width="4" height="6" fill="#C9A227"/>'+
+       '<rect x="'+(x-8)+'" y="30" width="16" height="4" rx="1" fill="#8C731F"/>';}
+  if(!trophies)g+='<text x="'+(W/2+40)+'" y="26" text-anchor="middle" font-size="10" fill="#4E5A68" '+
+    'font-family="ui-monospace,monospace">THE SHELF IS EMPTY</text>';
+  /* desk */
+  g+='<rect x="30" y="168" width="'+(W-60)+'" height="14" rx="4" fill="#3A2C1E"/>';
+  g+='<rect x="46" y="182" width="10" height="56" fill="#2E2318"/>'+
+     '<rect x="'+(W-56)+'" y="182" width="10" height="56" fill="#2E2318"/>';
+  /* ledger book */
+  g+='<rect x="60" y="140" width="66" height="28" rx="3" fill="'+myCol()+'" stroke="'+myCol2()+'"/>'+
+     '<line x1="93" y1="140" x2="93" y2="168" stroke="'+myCol2()+'" opacity=".6"/>'+
+     '<text x="93" y="158" text-anchor="middle" font-size="9" fill="'+myCol2()+
+     '" font-family="ui-monospace,monospace">LEDGER</text>';
+  /* stacked coins, height follows cash */
+  const coins=clamp(Math.round(st.cash/45000),0,8);
+  for(let i=0;i<coins;i++)
+    g+='<ellipse cx="180" cy="'+(164-i*7)+'" rx="15" ry="5" fill="#C9A227" opacity="'+
+      (0.55+i*0.05)+'" stroke="#8C731F"/>';
+  if(!coins)g+='<text x="180" y="162" text-anchor="middle" font-size="9" fill="#C4614F" '+
+    'font-family="ui-monospace,monospace">EMPTY</text>';
+  /* letters from sponsors and the press */
+  const offers=(st.offers||[]).filter(function(o){return !o.taken;}).length;
+  for(let i=0;i<Math.min(4,offers);i++)
+    g+='<g transform="translate('+(240+i*9)+','+(150+i*4)+') rotate('+(i*4-6)+')">'+
+       '<rect width="58" height="38" rx="3" fill="#E8E3D9" opacity=".9"/>'+
+       '<path d="M0 0 L29 20 L58 0" fill="none" stroke="#8698AA" stroke-width="1.4"/></g>';
+  /* the shirt on the back of the door */
+  g+=jersey({p:"Chaser",id:"office",n:"Club Shirt",inj:0,susp:0},W-92,150,1.5,myCol(),myCol2());
+  g+='<text x="30" y="20" font-size="10" fill="#8698AA" font-family="ui-monospace,monospace">'+
+     (st.clubName||"CLUB").toUpperCase()+' \u00B7 SEASON '+st.season+' \u00B7 WEEK '+st.week+'</text>';
+  g+='</svg>';
+  return g;}
+
+/* Matchday teamsheet: both sides, captains, managers, venue. */
+function teamsheetHTML(){
+  const f=myFixture();
+  if(!f)return"";
+  const me=myClub(), meAI=CLUBS.find(c=>c.id===st.club);
+  const atHome=f.h===st.club;
+  const oppC=clubById(atHome?f.a:f.h);
+  const oppAI=CLUBS.find(c=>c.id===oppC.id);
+  const mine=active().filter(avail), theirs=oppC.players.filter(avail);
+  const myCap=captainOf(mine), opCap=captainOf(theirs);
+  const venue=atHome?myGround():oppAI.ground;
+  const side=function(name,list,cap,boss,col,col2){
+    return '<div style="flex:1;min-width:0">'+
+      '<div style="font-family:Georgia,serif;font-size:15px;color:'+col2+'">'+name+'</div>'+
+      '<div style="font-size:10.5px;color:var(--mute);margin-bottom:8px">'+boss+'</div>'+
+      list.slice().sort(byPos).slice(0,7).map(function(p){
+        return '<div style="display:flex;gap:7px;align-items:center;font-size:12px;padding:2px 0">'+
+          '<span style="font-family:var(--mono);font-size:10px;color:'+col2+
+            ';background:'+col+';border-radius:3px;padding:1px 5px;min-width:19px;text-align:center">'+
+            shirtNo(p)+'</span>'+
+          '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.n+
+            (p===cap?' <b style="color:var(--gold);font-size:9px">(C)</b>':'')+'</span>'+
+          '<span style="font-family:var(--mono);font-size:11px;color:var(--mute)">'+rate(p)+'</span>'+
+        '</div>';}).join("")+'</div>';};
+  return '<div class="card"><div style="text-align:center;margin-bottom:12px">'+
+    '<div style="font-family:Georgia,serif;font-size:16px">'+COMPS[compOf(st.week)].n+'</div>'+
+    '<div style="font-size:11px;color:var(--mute)">'+venue+' \u00B7 '+wx().n.toLowerCase()+
+    ' \u00B7 '+(atHome?attendanceFor(st.price).toLocaleString()+" expected":"away from home")+
+    '</div></div>'+
+    '<div style="display:flex;gap:16px">'+
+      side(me.n,mine,myCap,meAI.boss==="—"?"You":"You",myCol(),myCol2())+
+      side(oppC.n,theirs,opCap,oppAI.boss,oppAI.col,oppAI.col2)+
+    '</div></div>';}
+
+/* The front page. Built from whatever the week actually produced. */
+function paperHTML(){
+  const p=st.paper;
+  if(!p)return '<div class="paper"><div class="mast">'+PAPER_NAME+'</div>'+
+    '<p class="orn">\u2743 \u2743 \u2743</p>'+
+    '<div class="dline"><span>Season '+st.season+'</span><span>Week '+st.week+'</span>'+
+    '<span>Three Knuts</span></div>'+
+    '<p class="standfirst">No edition yet. The presses run once the week is played \u2014 '+
+    'advance the week and the results, the quotes and the gossip will be here.</p></div>';
+  const ordinalWk="Week "+p.week;
+  const lead=p.lead;
+  let headline="A quiet week in the "+p.comp,
+      stand="Nothing much to report from a round that will be forgotten by Tuesday.";
+  if(lead){
+    const margin=Math.abs(lead.hs-lead.as);
+    const wn=lead.hs>lead.as?lead.hn:lead.as>lead.hs?lead.an:null;
+    const ln=lead.hs>lead.as?lead.an:lead.hn;
+    if(!wn){headline=lead.hn+" and "+lead.an+" cannot be separated";
+      stand="A drawn afternoon that flattered neither side, and settles nothing at the top.";}
+    else if(margin>=160){headline=wn+" dismantle "+ln;
+      stand="A margin of "+margin+" points, and a long, quiet journey home for "+ln+".";}
+    else if(margin>=60){headline=wn+" see off "+ln;
+      stand="Comfortable in the end, though the scoreline flatters a side that had to work for it.";}
+    else{headline=wn+" edge past "+ln;
+      stand="Decided by the snitch and very little else. "+ln+" will feel hard done by.";}
+  }
+  const results=p.fixtures.length
+    ? p.fixtures.map(f=>'<div class="res'+(f.mine?" mine":"")+'">'+
+        '<span>'+f.hn+'</span><b>'+f.hs+'\u2013'+f.as+'</b><span>'+f.an+'</span></div>').join("")
+    : '<div class="res"><span>No fixtures played</span></div>';
+  const quotes=p.stories.length
+    ? p.stories.map(q=>'<blockquote>'+q.line+
+        '<cite>'+(q.boss||"The manager")+', '+q.club+'</cite></blockquote>').join("")
+    : '<blockquote>\u201CNo one would say anything worth printing.\u201D<cite>Our reporter</cite></blockquote>';
+  const pv=p.player?('<blockquote>'+p.player.line+'<cite>'+p.player.name+', '+
+    p.player.pos.toLowerCase()+', '+p.player.club+'</cite></blockquote>'):"";
+  const tbl='<table class="tbl">'+p.table.map((c,i)=>'<tr'+(c.id===st.club?' class="mine"':'')+
+    '><td>'+(i+1)+'. '+c.n+'</td><td>'+c.w+'</td><td>'+c.d+'</td><td>'+c.l+
+    '</td><td>'+c.pts+'</td></tr>').join("")+'</table>';
+  const notes=(p.notes||[]).filter(n=>!/^week settled/.test(n));
+  return '<div class="paper">'+
+    '<div class="mast">'+PAPER_NAME+'</div>'+
+    '<p class="orn">\u2743 \u2743 \u2743</p>'+
+    '<div class="dline"><span>Season '+p.season+' \u00B7 '+ordinalWk+'</span>'+
+      '<span>'+p.comp+'</span><span>'+p.weather+'</span><span>Three Knuts</span></div>'+
+    '<div class="kick">'+(p.comp)+'</div>'+
+    '<h3>'+headline+'</h3>'+
+    '<p class="standfirst lead">'+stand+'</p>'+
+    '<div class="cols">'+
+      '<div class="col"><p class="rule">Results</p>'+results+
+        '<p class="rule" style="margin-top:14px">The table</p>'+tbl+'</div>'+
+      '<div class="col"><p class="rule">From the managers</p>'+quotes+
+        (pv?('<p class="rule" style="margin-top:14px">In the mixed zone</p>'+pv):'')+
+        (p.gossip?('<p class="rule" style="margin-top:14px">Whispers</p>'+
+          '<p class="gossip">'+p.gossip+'</p>'):'')+
+        (notes.length?('<p class="rule" style="margin-top:14px">In brief</p>'+
+          notes.map(n=>'<p class="gossip" style="border-left-color:#6A6154;margin-bottom:7px">'+
+            n+'</p>').join("")):'')+
+      '</div>'+
+    '</div>'+
+    '<div class="foot">'+PAPER_NAME+' \u00B7 printed in Diagon Alley \u00B7 no refunds</div>'+
+  '</div>';}
+
+/* Position-by-position against whoever we face this week, with a read on what the
+   gaps imply for the instructions. */
+function h2hHTML(){
+  const f=myFixture();
+  if(!f)return '<div class="card"><p class="cs" style="margin:0">'+
+    (isCupWeek(st.week)||isTrophyWeek(st.week)
+      ?"No tie for you this week \u2014 nothing to prepare for."
+      :"No fixture this week.")+'</p></div>';
+  const oppC=clubById(f.h===st.club?f.a:f.h);
+  const oppAI=CLUBS.find(c=>c.id===oppC.id);
+  const mine=lineup(active().filter(avail),squad);
+  const theirs=lineup(oppC.players.filter(avail),oppC.players);
+  const rows=[["Keeper",[mine.gk],[theirs.gk]],
+              ["Beaters",mine.bt,theirs.bt],
+              ["Chasers",mine.ch,theirs.ch],
+              ["Seeker",[mine.sk],[theirs.sk]]];
+  const avg=a=>{const v=a.filter(Boolean);return v.length
+    ?Math.round(v.reduce((s,p)=>s+rate(p),0)/v.length):0;};
+  const line=function(label,a,b){
+    const ra=avg(a), rb=avg(b), diff=ra-rb;
+    const col=diff>=6?"var(--green)":diff<=-6?"var(--red)":"var(--mute)";
+    const pct=clamp(50+diff*2.6,8,92);
+    return '<div style="margin-bottom:9px">'+
+      '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">'+
+        '<span style="font-family:var(--mono);color:'+(diff>0?"var(--green)":"var(--bone)")+'">'+ra+'</span>'+
+        '<span style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">'+
+          label+'</span>'+
+        '<span style="font-family:var(--mono);color:'+(diff<0?"var(--red)":"var(--bone)")+'">'+rb+'</span>'+
+      '</div>'+
+      '<div style="position:relative;height:6px;background:#243040;border-radius:3px;overflow:hidden">'+
+        '<div style="position:absolute;left:0;top:0;bottom:0;width:'+pct+'%;background:'+myCol()+'"></div>'+
+        '<div style="position:absolute;left:'+pct+'%;top:0;bottom:0;right:0;background:'+oppAI.col+'"></div>'+
+        '<div style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#8698AA"></div>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--mute);margin-top:2px">'+
+        '<span>'+a.filter(Boolean).map(surname).join(", ")+'</span>'+
+        '<span style="color:'+col+';font-family:var(--mono)">'+(diff>0?"+":"")+diff+'</span>'+
+        '<span>'+b.filter(Boolean).map(surname).join(", ")+'</span>'+
+      '</div></div>';};
+  /* the reads that actually change instructions */
+  const skDiff=(mine.sk?rate(mine.sk):0)-(theirs.sk?rate(theirs.sk):0);
+  const chDiff=avg(mine.ch)-avg(theirs.ch);
+  const btDiff=avg(mine.bt)-avg(theirs.bt);
+  const advice=[];
+  if(skDiff<=-6)advice.push("Their seeker is "+Math.abs(skDiff)+
+    " better. Shadowing flattens the duel; raising focus only hands them more chances.");
+  else if(skDiff>=6)advice.push("You hold a "+skDiff+
+    " point edge in the air. Hunt, and push focus up \u2014 more snitch events favour you.");
+  else advice.push("The seekers are evenly matched. Focus is close to a coin flip either way.");
+  if(chDiff<=-6)advice.push("You are outgunned at chaser. Possession shapes and patient tempo "+
+    "keep the quaffle away from them.");
+  else if(chDiff>=6)advice.push("Your chasers are the stronger unit \u2014 attacking shape and "+
+    "quicker tempo turn that into goals.");
+  if(btDiff<=-8)advice.push("Their beaters are heavier than yours. Aggression will cost you more "+
+    "than it costs them.");
+  else if(btDiff>=8)advice.push("You win the bludger exchange. Aggression is cheap today.");
+  if(oppAI.ai.sf>=4)advice.push("They run a high seeker focus, so their beaters will be hunting "+
+    "yours. Expect him to take punishment.");
+  const venue=f.h===st.club?"at "+myGround():"away at "+oppAI.ground;
+  return '<div class="card">'+
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">'+
+      '<span style="font-family:Georgia,serif;font-size:15px">'+(st.clubName||"Us")+'</span>'+
+      '<span style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">'+
+        venue+'</span>'+
+      '<span style="font-family:Georgia,serif;font-size:15px;text-align:right">'+oppC.n+'</span>'+
+    '</div>'+
+    rows.map(r=>line(r[0],r[1],r[2])).join("")+
+    '<div style="border-top:1px solid var(--line);margin-top:10px;padding-top:9px">'+
+      advice.map(a=>'<p class="cs" style="margin:0 0 6px;color:var(--sky)">'+a+'</p>').join("")+
+      '<p class="cs" style="margin:0">Their manager, '+oppAI.boss+
+      ', favours '+oppAI.ai.form+' and '+
+      (oppAI.ai.ag>.6?"plays it rough":oppAI.ai.ag>.4?"mixes it":"keeps it clean")+'.</p>'+
+    '</div></div>';}
+
+/* ================= render ================= */
+const SCREENS=["comps","media","squad","tactics","training","academy","office","ground",
+ "market","match"];
+const SCR_LABEL={comps:"Competitions",media:"Media",squad:"Squad",tactics:"Tactics",
+ training:"Training",academy:"Academy",office:"Office",ground:"Ground",market:"Market",
+ match:"Match"};
+
+function playerRow(p,mode){
+  const owned=(mode==="squad");
+  const b=shownPot(p,owned);
+  const head=p.potTrue===undefined?0:p.potTrue-rate(p);
+  const potTxt=b?(b.exact?String(b.lo):b.lo+"\u2013"+b.hi):"";
+  const potCol=head<=1?"var(--mute)":head>=10?"var(--green)":"var(--sky)";
+  const badge=(p.inj>0?"<i>"+p.injTxt+", "+Math.ceil(p.inj)+"w</i>":"")+
+    (p.susp>0?"<s>suspended</s>":"")+
+    (potTxt?'<u style="color:'+potCol+'">\u2191'+potTxt+"</u>":"");
+  let btn="";
+  if(mode==="squad"){
+    const c=canSell(p);
+    btn=c.ok?'<button class="mini" data-act="sell" data-id="'+p.id+'">Sell '+money(Math.round(value(p)*.7))+'</button>'
+      :'<button class="mini" disabled title="'+c.why+'">Sell</button>';
+    btn+=' <button class="mini" data-act="swap" data-id="'+p.id+'">'+(p.bench?"Start":"Bench")+'</button>';
+  } else if(mode==="market")btn='<button class="mini" data-act="sign" data-id="'+p.id+'">'+money(value(p))+'</button>';
+  else if(mode==="fa")btn='<button class="mini" data-act="signfa" data-id="'+p.id+'">Free</button>';
+  else if(mode==="pros")btn='<button class="mini" data-act="promote" data-id="'+p.id+'">Promote</button>';
+  const mc=p.morale>=70?"var(--green)":p.morale>=45?"var(--mute)":"var(--red)";
+  return '<div class="pl'+(p.bench&&mode==="squad"?" bench":"")+(st.sel===p.id?" on":"")+
+    '" data-act="sel" data-id="'+p.id+'">'+
+    '<span class="nm">'+p.n+badge+'</span>'+
+    '<span class="pos">'+p.p.slice(0,3)+'</span>'+
+    '<span class="rt">'+rate(p)+'</span>'+
+    '<span class="ag">'+p.age+'y</span>'+
+    '<span class="mo" style="color:'+mc+'">'+Math.round(p.morale)+'</span>'+
+    '<span class="vl">'+money(value(p))+'</span>'+btn+'</div>';}
+
+function paintBoard(){
+  if(!log)return;
+  $("hn").textContent=log.home?log.myName:log.oppName;
+  $("an").textContent=log.home?log.oppName:log.myName;
+  $("hs").textContent=st.hs;$("as").textContent=st.as;$("mn").textContent=st.min;}
+
+function paint(){
+  /* nav */
+  if(st.club&&st.founded){
+    $("nav").innerHTML=SCREENS.map(s=>'<button data-act="nav" data-v="'+s+'"'+
+      (st.screen===s?' class="on"':'')+'>'+SCR_LABEL[s]+'</button>').join("")+
+      '<button data-act="week">Advance week \u2192</button>'+
+      '<button data-act="reset" style="color:var(--mute)">'+(st.locked?"Contract":"New club")+'</button>';
+  } else $("nav").innerHTML="";
+  document.querySelectorAll(".screen").forEach(el=>
+    el.classList.toggle("on",el.dataset.s===st.screen));
+
+  /* team select */
+  $("clubs").innerHTML=CLUBS.map(c=>{
+    const order=["Keeper","Beater","Chaser","Seeker"];
+    const bars=order.map(p=>{
+      const pct=Math.round((c.bias[p]-60)/34*100);
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'+
+        '<span style="width:56px;font-size:11.5px;color:var(--mute)">'+p+'</span>'+
+        '<span class="bar" style="flex:1;margin:0"><i style="width:'+clamp(pct,6,100)+'%"></i></span>'+
+        '<span style="font-family:var(--mono);font-size:11.5px;width:22px;text-align:right">'+
+        c.bias[p]+'</span></div>';}).join("");
+    return '<div class="card"><h3>'+c.style+'</h3>'+
+      '<p class="cs">'+c.blurb+'</p>'+bars+
+      '<div class="grid" style="margin-top:10px"><span class="k">Starting budget</span>'+
+      '<span class="v">'+money(c.budget)+'</span>'+
+      '<span class="k">You replace</span><span class="v">'+c.n+'</span></div>'+
+      '<div class="row" style="margin-top:10px">'+
+      '<button data-act="pick" data-v="'+c.id+'">Found this club</button></div></div>';
+  }).join("");
+
+  if(!st.club){paintState();return;}
+
+  /* squad */
+  const st7=squad.filter(p=>!p.bench);
+  const avgXI=st7.length?Math.round(st7.reduce((a,p)=>a+rate(p),0)/st7.length):0;
+  const avgAge=st7.length?(st7.reduce((a,p)=>a+p.age,0)/st7.length).toFixed(1):0;
+  const avgMor=st7.length?Math.round(st7.reduce((a,p)=>a+p.morale,0)/st7.length):0;
+  const hurt=squad.filter(p=>p.inj>0).length, banned=squad.filter(p=>p.susp>0).length;
+  const cap=st7.length?captainOf(st7):null;
+  const stat=function(k,v,col){return '<div style="flex:1;min-width:74px;text-align:center">'+
+    '<div style="font-family:var(--mono);font-size:19px;color:'+(col||"var(--bone)")+'">'+v+'</div>'+
+    '<div style="font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">'+
+    k+'</div></div>';};
+  $("squadHead").textContent=st.clubName||"Squad";
+  $("squadStats").innerHTML='<div style="display:flex;flex-wrap:wrap;gap:10px">'+
+    stat("XI rating",avgXI,avgXI>=85?"var(--green)":avgXI>=75?"var(--bone)":"var(--amber)")+
+    stat("Avg age",avgAge)+
+    stat("Morale",avgMor,avgMor>=70?"var(--green)":avgMor>=45?"var(--bone)":"var(--red)")+
+    stat("Squad",squad.length)+
+    stat("Unavailable",hurt+banned,(hurt+banned)?"var(--red)":"var(--mute)")+
+    '</div>'+(cap?'<p class="cs" style="margin:10px 0 0">Captain: <b>'+cap.n+
+    '</b> \u2014 the most experienced head in the side.</p>':'');
+  const starters=squad.filter(p=>!p.bench).sort(byPos);
+  const bench=squad.filter(p=>p.bench).sort(byPos);
+  $("xi").innerHTML=starters.map(p=>playerRow(p,"squad")).join("")||'<div class="empty">Nobody selected.</div>';
+  $("bench").innerHTML=bench.map(p=>playerRow(p,"squad")).join("")||'<div class="empty">No reserves.</div>';
+  const selP=squad.find(p=>p.id===st.sel);
+  $("pdet").innerHTML=selP?('<p class="lbl">'+selP.n+'</p><div class="card">'+
+    '<div class="grid">'+SKILLS.map(k=>'<span class="k">'+SKNAME[k]+'</span><span class="v">'+
+      Math.round(selP.sk[k])+'</span>').join("")+
+    '<span class="k tot">Contract</span><span class="v tot">'+money(selP.contract.wage)+
+      '/wk, '+Math.max(0,selP.contract.wks)+'w left</span>'+
+    '<span class="k">Development this week</span><span class="v">'+
+      (projectedGain(selP)>0?"+"+projectedGain(selP).toFixed(2):"plateau")+'</span>'+
+    '<span class="k">Retirement risk</span><span class="v">'+
+      Math.round(retireRisk(selP.age)*100)+'%/season</span>'+
+    '<span class="k">Ceiling</span><span class="v">'+potLabel(selP,true)+'</span>'+
+    '<span class="k">Headroom left</span><span class="v">'+(()=>{
+      const b=shownPot(selP,true);if(!b)return"unknown";
+      const lo=Math.max(0,b.lo-rate(selP)),hi=Math.max(0,b.hi-rate(selP));
+      if(lo===0&&hi===0)return"none \u2014 finished article";
+      return b.exact?("+"+lo):("+"+lo+" to +"+hi);})()+'</span>'+
+    '<span class="k">Reading</span><span class="v">'+(()=>{
+      const f=potFog(true);
+      return f<=0?"exact":f<=6?"close":f<=12?"rough":"guesswork";})()+'</span>'+
+    '</div></div>'):"";
+
+  /* market */
+  $("mkt").innerHTML=market.map(p=>playerRow(p,"market")).join("")||'<div class="empty">Nothing listed.</div>';
+  $("fas").innerHTML=fas.map(p=>playerRow(p,"fa")).join("")||'<div class="empty">No free agents.</div>';
+
+  /* academy */
+  $("acad").innerHTML='<div class="card"><h3>Academy level '+st.acad+'</h3>'+
+    '<p class="cs">'+(st.acad?Math.round(ACAD_CHANCE[st.acad]*100)+"% chance of an intake each week · "+
+      money(ACAD_UP[st.acad])+"/wk upkeep":"No academy. No youth.")+'</p>'+
+    (st.acad<3?'<button data-act="acad">Upgrade to level '+(st.acad+1)+' — '+
+      money(ACAD_BUILD[st.acad+1])+'</button>':'<span class="tag won">fully built</span>')+'</div>';
+  $("pros").innerHTML=prospects.map(p=>playerRow(p,"pros")).join("")||'<div class="empty">No prospects yet.</div>';
+
+  /* ground */
+  const myArch=(CLUBS.find(c=>c.id===st.club)||{}).arch;
+  $("stadArt").innerHTML=stadiumArt({tier:st.tier,condition:st.condition,arch:myArch,
+    col:myCol(),col2:myCol2(),weather:st.weather,name:myGround(),
+    fill:clamp(attendanceFor(st.price)/Math.max(1,CAP[st.tier]),0.08,1)})+
+    '<div style="margin-top:10px">'+stadiumSVG()+'</div>';
+  $("acadArt").innerHTML=academySVG();
+  $("officeArt").innerHTML=officeSVG();
+  $("groundHead").textContent=myGround();
+  $("stad").innerHTML='<div class="card"><h3>'+CAP[st.tier].toLocaleString()+' seats</h3>'+
+    '<p class="cs">Tier '+st.tier+' · condition '+Math.round(st.condition)+'% · '+
+      money(stadUp())+'/wk upkeep</p>'+
+    '<div class="bar"><i style="width:'+st.condition+'%"></i></div>'+
+    '<div class="row" style="margin-top:12px">'+
+    '<button data-act="repair"'+(st.cash<REPAIR_COST||st.condition>=100?" disabled":"")+
+      '>Repair +'+REPAIR_GAIN+'% — '+money(REPAIR_COST)+'</button>'+
+    (st.tier<3?'<button data-act="expand"'+
+      (st.condition<EXPAND_MIN||st.cash<EXPAND[st.tier+1]?" disabled":"")+
+      '>Expand to '+CAP[st.tier+1].toLocaleString()+' — '+money(EXPAND[st.tier+1])+'</button>':"")+
+    '</div>'+(st.condition<EXPAND_MIN&&st.tier<3?
+      '<p class="cs" style="margin:10px 0 0">Condition must reach '+EXPAND_MIN+'% before you can expand.</p>':"")+
+    '</div>';
+  $("facs").innerHTML=Object.keys(FACS).map(k=>{
+    const f=FACS[k],lv=st.fac[k];
+    const effTxt=k==="broom"?("+"+f.eff[lv]+" speed")
+      :k==="med"?("+"+Math.round(f.eff[lv]*100)+"% healing")
+      :k==="train"?(f.eff[lv]+"\u00D7 development, ceilings read \u00B1"+potFog(true)+" on your own squad")
+      :(f.eff[lv]===0?"ceilings shown exactly":"ceilings read \u00B1"+Math.round(f.eff[lv]/2)+" on players elsewhere");
+    return '<div class="card"><h3>'+f.n+' — level '+lv+'</h3><p class="cs">'+f.note+
+      ' Currently '+effTxt+'.</p>'+
+      (lv<3?'<button data-act="fac" data-v="'+k+'"'+(st.cash<f.cost[lv+1]?" disabled":"")+
+        '>Upgrade — '+money(f.cost[lv+1])+' ('+money(Math.round(f.cost[lv+1]*.07))+'/wk)</button>'
+        :'<span class="tag won">maxed</span>')+'</div>';}).join("");
+
+  const per=commerceRate();
+  const projAtt=attendanceFor(st.price);
+  $("comSum").innerHTML="Earns on home fixtures only. Currently <b>\u00A3"+per.toFixed(2)+
+    "</b> a head \u2014 about <b>"+money(commerceTake(projAtt))+"</b> a match at your current gate, "+
+    "against "+money(commerceUp())+"/wk to run.";
+  $("coms").innerHTML=Object.keys(COMMERCE).map(k=>{
+    const c=COMMERCE[k],lv=(st.com&&st.com[k])||0;
+    let y=c.yield[lv];
+    if(c.scale==="rep")y*=(0.6+st.rep/100);
+    if(c.scale==="tier")y*=(1+st.tier*0.15);
+    const scaleNote=c.scale==="rep"?" Scales with reputation."
+      :c.scale==="tier"?" Scales with ground size.":"";
+    return '<div class="card"><h3>'+c.n+' \u2014 level '+lv+'</h3>'+
+      '<p class="cs">'+c.note+scaleNote+(lv?' Taking <b>\u00A3'+y.toFixed(2)+'</b> a head.':'')+'</p>'+
+      (lv<3?'<button data-act="com" data-v="'+k+'"'+(st.cash<c.cost[lv+1]?' disabled':'')+
+        '>Level '+(lv+1)+' \u2014 '+money(c.cost[lv+1])+' ('+money(Math.round(c.cost[lv+1]*.03))+
+        '/wk)</button>':'<span class="tag won">maxed</span>')+'</div>';}).join("");
+
+  /* office */
+  const proj=attendanceFor(st.price);
+  const gate=proj*st.price,spon=sponsorPay(),w=wageBill(),su=stadUp(),au=acadUp(),fu=facUp();
+  const cu=commerceUp();
+  const trade=commerceTake(proj);
+  const fixed=spon-w-su-au-fu-cu;
+  const net=gate+trade+fixed;      /* a week you are at home */
+  const awayNet=fixed;             /* a week you are not */
+  const avgNet=Math.round(fixed+(gate+trade)/2);
+  $("ledger").innerHTML=
+    '<span class="k">Cash</span><span class="v">'+money(st.cash)+'</span>'+
+    '<span class="k">Home gate ('+proj.toLocaleString()+' @ \u00A3'+st.price+
+      ', home fixtures only)</span><span class="v pos">'+signed(gate)+'</span>'+
+    '<span class="k">Matchday trade (\u00A3'+commerceRate().toFixed(2)+'/head, home only)</span>'+
+      '<span class="v pos">'+signed(commerceTake(proj))+'</span>'+
+    '<span class="k">Sponsor</span><span class="v pos">'+signed(spon)+'</span>'+
+    '<span class="k">Wages</span><span class="v neg">'+signed(-w)+'</span>'+
+    '<span class="k">Ground upkeep</span><span class="v neg">'+signed(-su)+'</span>'+
+    '<span class="k">Academy upkeep</span><span class="v neg">'+signed(-au)+'</span>'+
+    '<span class="k">Facilities upkeep</span><span class="v neg">'+signed(-fu)+'</span>'+
+    '<span class="k">Matchday trade upkeep</span><span class="v neg">'+signed(-cu)+'</span>'+
+    '<span class="k tot">Net, home week</span><span class="v tot '+(net>=0?"pos":"neg")+'">'+
+      signed(net)+'</span>'+
+    '<span class="k">Net, away week</span><span class="v '+(awayNet>=0?"pos":"neg")+'">'+
+      signed(awayNet)+'</span>'+
+    '<span class="k">Average across the season</span><span class="v '+(avgNet>=0?"pos":"neg")+'">'+
+      signed(avgNet)+'</span>';
+  $("ledger").insertAdjacentHTML("afterend",'');
+  $("ledger").insertAdjacentHTML("afterend",'');
+  $("priceTag").textContent="\u00A3"+st.price+" a seat";
+  $("spons").innerHTML=SPONSORS.map(s=>{
+    const locked=st.rep<s.rep,on=st.sponsor===s.id;
+    const pay=s.perWin?money(s.pay)+" +"+money(s.perWin)+"/recent win":
+      s.posBonus?money(s.pay)+" + league bonus":money(s.pay)+"/wk";
+    return '<button class="wide'+(on?" on":"")+'" style="margin-bottom:6px"'+
+      (locked?" disabled":' data-act="sponsor" data-v="'+s.id+'"')+'><b>'+s.n+'</b> — '+pay+
+      '<br><span style="color:var(--mute);font-size:12px">'+
+      (locked?"needs reputation "+s.rep:s.note)+'</span></button>';}).join("");
+  $("offers").innerHTML=st.offers.filter(o=>!o.taken).map(o=>
+    '<button class="wide" style="margin-bottom:6px" data-act="offer" data-id="'+o.id+'"><b>'+o.n+
+    '</b> — '+money(o.cash)+'<br><span style="color:var(--mute);font-size:12px">reputation '+
+    (o.rep>0?"+":"")+o.rep+(o.risk?" · injury risk":"")+'</span></button>').join("")||
+    '<div class="empty">Nothing on the desk.</div>';
+  $("cab").innerHTML=(st.cabinet.length?st.cabinet.map(c=>
+    '<div>'+(c.champ?'<span class="tag won">champions</span>':'<span class="tag">'+ordinal(c.pos)+'</span>')+
+    (c.cup?'<span class="tag won">'+COMPS.cup.short.toLowerCase()+'</span>':'')+
+    (c.trophy?'<span class="tag won">snidget trophy</span>':'')+
+    ' Season '+c.season+' \u2014 '+c.rec+'</div>').join(""):'<div class="empty">Nothing won yet.</div>')+
+    '<p class="lbl">Achievements</p>'+ACHIEVEMENTS.map(a=>
+    '<span class="tag'+(st.ach.indexOf(a.id)>-1?" won":"")+'" title="'+a.d+'">'+a.n+'</span>').join("");
+
+  /* media */
+  $("paper").innerHTML=paperHTML();
+
+  /* competitions */
+  $("compHead").textContent=COMPS[st.compTab||"league"].n;
+  $("compSub").textContent={
+    league:"Eighteen rounds. Three points a win, and the table never lies.",
+    cup:"Domestic knockout. Semi-finals in week "+CUP_SEMI+", the final in week "+CUP_FINAL+".",
+    trophy:"Continental. The two best clubs of last season, over two legs in weeks "+
+      TRO_L1+" and "+TRO_L2+"."}[st.compTab||"league"];
+  $("compNav").innerHTML=["league","cup","trophy"].map(function(k){
+    return '<button data-act="comptab" data-v="'+k+'"'+((st.compTab||"league")===k?' class="on"':'')+
+      '>'+COMPS[k].short+'</button>';}).join("");
+  const ctbl=standings();
+  if((st.compTab||"league")==="league"){
+    $("compBody").innerHTML='<div class="card"><table><tr><th>Club</th><th>P</th><th>W</th>'+
+      '<th>D</th><th>L</th><th>GF</th><th>GA</th><th>Pts</th></tr>'+ctbl.map(function(c,i){
+      const ai=CLUBS.find(x=>x.id===c.id);
+      return '<tr'+(c.id===st.club?' class="me"':'')+'><td>'+
+        '<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+
+        (c.id===st.club?myCol():ai.col)+';margin-right:7px"></span>'+
+        (i<2?'<b style="color:var(--green)">'+(i+1)+'</b> ':'<span style="color:var(--mute)">'+(i+1)+'</span> ')+
+        c.n+'</td><td>'+(c.w+c.d+c.l)+'</td><td>'+c.w+'</td><td>'+c.d+'</td><td>'+c.l+
+        '</td><td>'+c.gf+'</td><td>'+c.ga+'</td><td><b>'+c.pts+'</b></td></tr>';}).join("")+
+      '</table><p class="cs" style="margin:10px 0 0">Top two qualify for next season\u2019s '+
+      COMPS.trophy.n+'.</p></div>';
+  } else if(st.compTab==="cup"){
+    const semis=st.cup.semis;
+    $("compBody").innerHTML='<div class="card">'+
+      (semis?('<p class="lbl" style="margin-top:0">Semi-finals</p>'+semis.map(function(t){
+        const w=st.cup.finalists.indexOf(t.h)>-1?t.h:st.cup.finalists.indexOf(t.a)>-1?t.a:null;
+        return '<div style="padding:5px 0;font-size:13px">'+
+          '<span style="'+(w===t.h?'color:var(--gold)':'')+'">'+clubById(t.h).n+'</span>'+
+          '<span style="color:var(--mute)"> v </span>'+
+          '<span style="'+(w===t.a?'color:var(--gold)':'')+'">'+clubById(t.a).n+'</span></div>';}).join("")
+        ):'<p class="cs">Not drawn yet. The semi-finals are seeded off the table in week '+CUP_SEMI+'.</p>')+
+      (st.cup.finalists.length===2?('<p class="lbl">Final</p><div style="font-size:14px">'+
+        clubById(st.cup.finalists[0]).n+' v '+clubById(st.cup.finalists[1]).n+'</div>'):'')+
+      (st.cup.champion?('<p class="lbl">Winners</p><div style="font-size:15px;color:var(--gold)">'+
+        clubById(st.cup.champion).n+'</div>'):'')+'</div>';
+  } else {
+    const q=(st.trophy.qual||[]);
+    $("compBody").innerHTML='<div class="card">'+
+      (q.length===2?('<p class="lbl" style="margin-top:0">Qualified</p>'+q.map(function(id){
+        return '<div style="font-size:14px;padding:3px 0">'+clubById(id).n+
+          '<span style="float:right;font-family:var(--mono);color:var(--mute)">'+
+          ((st.trophy.agg&&st.trophy.agg[id])||0)+' agg</span></div>';}).join("")
+        ):'<p class="cs">Qualification is decided by the league table.</p>')+
+      (q.indexOf(st.club)<0&&q.length===2?'<p class="cs">You did not qualify this season.</p>':'')+
+      (st.trophy.champion?('<p class="lbl">Winners</p><div style="font-size:15px;color:var(--green)">'+
+        clubById(st.trophy.champion).n+'</div>'):'')+'</div>';
+  }
+
+  /* tactics */
+  $("h2h").innerHTML=h2hHTML();
+  $("pitch").innerHTML=pitchSVG();
+  $("forms").innerHTML=FORMS.map(f=>'<button data-act="form" data-v="'+f.n+'"'+
+    (st.form===f.n?' class="on"':'')+'>'+f.n+'</button>').join("");
+  $("sf").value=st.sf;
+  $("sfNote").textContent={1:"— chasers first",2:"— chasers favoured",3:"— balanced",
+    4:"— snitch favoured",5:"— snitch at all costs"}[st.sf];
+  $("agv").textContent=st.ag?"on":"off";
+  $("aggrBtn").classList.toggle("on",st.ag);
+  $("tempos").innerHTML=Object.keys(TEMPOS).map(k=>
+    '<button data-act="tempo" data-v="'+k+'"'+(st.tempo===k?' class="on"':'')+'>'+TEMPOS[k].n+
+    '<br><span style="color:var(--mute);font-size:11.5px">'+TEMPOS[k].note+'</span></button>').join("");
+  $("btargets").innerHTML=Object.keys(BTARGETS).map(k=>
+    '<button data-act="btarget" data-v="'+k+'"'+(st.btarget===k?' class="on"':'')+'>'+BTARGETS[k].n+
+    '<br><span style="color:var(--mute);font-size:11.5px">'+BTARGETS[k].note+'</span></button>').join("");
+  $("shadowRow").innerHTML=
+    '<button data-act="shadow" data-v="0"'+(!st.shadow?' class="on"':'')+'>Hunt the snitch'+
+    '<br><span style="color:var(--mute);font-size:11.5px">Back your seeker to win it outright.</span></button>'+
+    '<button data-act="shadow" data-v="1"'+(st.shadow?' class="on"':'')+'>Shadow their seeker'+
+    '<br><span style="color:var(--mute);font-size:11.5px">Fewer catches, and the duel becomes a coin flip.</span></button>';
+  const bribeCost=Math.round(3000+st.rep*90);
+  $("bribeRow").innerHTML='<div class="card"><h3>A quiet word'+
+    (st.bribeHeat>0?' <span class="tag" style="color:var(--amber);border-color:var(--amber)">under suspicion</span>':'')+
+    '</h3><p class="cs">'+money(bribeCost)+
+    ' buys a forgiving official: roughly half the fouls given against you. If the League finds out '+
+    'it is a fine, a reputation hit, and they watch you for weeks.'+
+    (st.bribeHeat>0?' You are already being watched \u2014 the risk is far higher.':'')+'</p>'+
+    '<button data-act="bribe"'+(st.cash<bribeCost?' disabled':'')+(st.bribe?' class="on"':'')+'>'+
+    (st.bribe?"Arranged for this match":"Have a word \u2014 "+money(bribeCost))+'</button></div>';
+  $("snitch").innerHTML=
+    '<button data-act="snitchmode" data-v="canon"'+(st.snitch==="canon"?' class="on"':'')+
+      '>150 points, ends the match</button>'+
+    '<button data-act="snitchmode" data-v="modern"'+(st.snitch==="modern"?' class="on"':'')+
+      '>30 points, play continues</button>';
+  const f=myFixture();
+  const opp=f?clubById(f.h===st.club?f.a:f.h):null;
+  const cupTag=isCupWeek(st.week)?'<span class="tag won">'+cupRound(st.week)+'</span> ':'';
+  $("fixture").innerHTML=opp?('<h3>'+cupTag+(f.h===st.club?"vs ":"away to ")+opp.n+'</h3>'+
+    '<p class="cs">'+CLUBS.find(c=>c.id===opp.id).note+
+    (isCupWeek(st.week)?" Knockout \u2014 a drawn tie is settled on the day, there is no replay.":"")+
+    '</p><div class="grid">'+
+    '<span class="k">Their best</span><span class="v">'+(()=>{
+      const b=(opp.players||[]).slice().sort((a,b)=>rate(b)-rate(a))[0];
+      return b?b.n:"unknown";})()+'</span>'+
+    '<span class="k">Their average</span><span class="v">'+(()=>{
+      const ps=opp.players||[];
+      return ps.length?Math.round(ps.reduce((s,p)=>s+rate(p),0)/ps.length):"—";})()+'</span>'+
+    '<span class="k">Your average</span><span class="v">'+
+      Math.round(active().reduce((s,p)=>s+rate(p),0)/Math.max(1,active().length))+'</span>'+
+    '<span class="k">Expected gate</span><span class="v">'+proj.toLocaleString()+'</span>'+
+    '<span class="k">Forecast</span><span class="v">'+wx().n+'</span></div>'+
+    '<p class="cs" style="margin-top:10px"><b>'+wx().n+'.</b> '+wx().note+'</p>'+
+    '<p class="cs" style="color:var(--sky)">'+weatherAdvice()+'</p>'):
+    (isCupWeek(st.week)?'<div class="empty">'+cupRound(st.week)+' week \u2014 you are not in it. Advance the week.</div>'
+      :'<div class="empty">No fixture this week.</div>');
+
+  /* training */
+  $("trainBtns").innerHTML=Object.keys(TRAIN).map(k=>
+    '<button data-act="train" data-v="'+k+'"'+(st.training===k?' class="on"':'')+'>'+
+    TRAIN[k].n+'<br><span style="color:var(--mute);font-size:11.5px">'+
+    TRAIN[k].hits.map(h=>SKNAME[h]).join(", ")+'</span></button>').join("");
+  const wm=weatherTrainMult();
+  $("trainBtns").insertAdjacentHTML("afterend",'');
+  $("dev").insertAdjacentHTML("beforebegin",'');
+  $("dev").innerHTML='<div class="card" style="margin-bottom:10px"><h3>'+wx().n+'</h3>'+
+    '<p class="cs">'+(st.training==="mental"
+      ?"Mental work is done indoors. The weather makes no difference to it."
+      :"Outdoor work at <b>"+Math.round(wm*100)+"%</b> effectiveness"+
+       (wm<1?" \u2014 a better training ground shelters more of it."
+            :wm>1?" \u2014 ideal conditions."
+            :"."))+'</p></div>'+
+    '<div class="card">'+squad.slice().sort(byPos).map(p=>{
+    const g=projectedGain(p);
+    const tone=g>=.9?"var(--green)":g>0?"var(--mute)":"var(--red)";
+    const tail=p.age>=35?"declining":g>0?"+"+g.toFixed(2)+"/wk":"plateau";
+    return '<div style="display:flex;gap:8px;padding:4px 0;font-size:13px">'+
+      '<span style="flex:1">'+p.n+'</span><span style="color:var(--sky);font-family:var(--mono)">'+
+      p.age+'y</span><span style="color:'+tone+';font-family:var(--mono);min-width:76px;text-align:right">'+
+      tail+'</span>'+(p.inj>0?'<span style="color:var(--amber);font-size:11px">hurt</span>':'')+'</div>';
+  }).join("")+'</div>';
+
+  /* match */
+  $("msub").textContent=!myFixture()
+    ?(isCupWeek(st.week)?cupRound(st.week)+" week — your club is not involved. Advance the week."
+      :"No fixture this week. Advance the week.")
+    :(isCupWeek(st.week)?cupRound(st.week)+". ":"")+wx().n+". "+
+      (st.snitch==="canon"?"The snitch is worth 150 and ends it."
+       :"The snitch is worth 30. Play continues.");
+  const haveFix=!!myFixture();
+  $("pb").textContent=!haveFix?"No fixture":st.ended?"Full time":st.run?"Pause":st.min?"Resume":"Kick off";
+  $("pb").disabled=!haveFix&&!st.ended&&!st.min;
+  $("sp").textContent=st.speed+"\u00D7";
+  const vf=myFixture();
+  if(vf){
+    const atH=vf.h===st.club;
+    const oc=clubById(atH?vf.a:vf.h);
+    const oAI=CLUBS.find(c=>c.id===oc.id)||{};
+    $("venue").innerHTML=stadiumArt({
+      tier:atH?st.tier:clamp(oAI.tier||1,0,3),
+      condition:atH?st.condition:78,
+      arch:atH?(CLUBS.find(c=>c.id===st.club)||{}).arch:oAI.arch,
+      col:atH?myCol():oAI.col, col2:atH?myCol2():oAI.col2,
+      weather:st.weather, name:atH?myGround():oAI.ground,
+      fill:atH?clamp(st.attendance/Math.max(1,CAP[st.tier]),0.1,1):0.82});
+  } else $("venue").innerHTML="";
+  $("sheet").innerHTML=(myFixture()&&!st.min)?teamsheetHTML():"";
+  paintBoard();
+  paintState();}
+
+/* A plain-language read on what the conditions reward. */
+function weatherAdvice(){
+  switch(st.weather){
+    case "rain":return "Handling is poor and the snitch is hard to follow \u2014 matches run long. "+
+      "Patient tempo and a possession shape hold up better than shooting on sight.";
+    case "wind":return "Accuracy is badly hit and bludgers fly wild. Injuries are a third more likely, "+
+      "so aggression costs more than usual. Patient tempo limits the damage.";
+    case "fog":return "The snitch is nearly invisible and the seeker duel drifts toward a coin flip "+
+      "whatever you instruct. A strong seeker is worth less today \u2014 win it with chasers instead.";
+    case "snow":return "Everything is harder and the crowd stays home. A low-scoring, ugly afternoon; "+
+      "keep possession and wait.";
+    case "crisp":return "The best conditions available. Shooting, sighting and catching all improve, "+
+      "and the gate is up. If you have the better seeker, today is the day to back him.";
+    default:return "Nothing in the conditions to work around. Play your normal game.";
+  }}
+
+function paintState(){
+  const f=st.club?myFixture():null;
+  $("state").innerHTML=[
+    '<span class="k">mode</span> <b>'+(st.mode||"—")+'</b> · <span class="k">season</span> <b>'+
+      st.season+'</b> · <span class="k">week</span> <b>'+st.week+'/20</b> · <span class="k">club</span> <b>'+
+      (st.club?clubById(st.club).n:"—")+'</b> · <span class="k">pos</span> <b>'+(st.club?myPos():"—")+
+      '</b> · <span class="k">contract</span> <b>'+(st.locked?"to end of season "+st.season:"expired")+'</b>',
+    '<span class="k">cash</span> <b>'+(st.club?money(st.cash):"—")+'</b> · <span class="k">rep</span> <b>'+
+      st.rep+'</b> · <span class="k">tone</span> <b>'+st.tone+'</b> · <span class="k">form</span> <b>'+
+      (st.last5.join("")||"—")+'</b> · <span class="k">record</span> <b>'+
+      st.rec.w+"W "+st.rec.d+"D "+st.rec.l+"L"+'</b>',
+    '<span class="k">shape</span> <b>'+st.form+'</b> · <span class="k">seeker</span> <b>'+st.sf+
+      '</b> · <span class="k">aggr</span> <b>'+(st.ag?"on":"off")+'</b> · <span class="k">training</span> <b>'+
+      st.training+'</b> · <span class="k">snitch</span> <b>'+st.snitch+
+      '</b> · <span class="k">weather</span> <b>'+wx().n.toLowerCase()+'</b>',
+    '<span class="k">last</span> <b>'+st.last+'</b>'
+  ].join("<br>");}
+
+/* ================= persistence ================= */
+function save(){
+  if(st.mode!=="solo")return;
+  store.save("save",{st:st,squad:squad,market:market,fas:fas,prospects:prospects,
+    clubs:clubsState,uid:uid});}
+/* Saves written by an earlier build will be missing whatever has been added since.
+   Fill in anything absent from a blank state rather than letting a read throw. */
+function migrate(old){
+  const base=blankState();
+  const out=Object.assign({},base,old);
+  ["com","fac","cup","rec"].forEach(k=>{
+    out[k]=Object.assign({},base[k],(old&&old[k])||{});});
+  ["offers","last5","ach","cabinet"].forEach(k=>{
+    if(!Array.isArray(out[k]))out[k]=[];});
+  /* Any save that already has a club was founded, whatever the flag says. Without this a
+     save written before the flag existed loads with no navigation at all. */
+  if(out.club)out.founded=true;
+  if(out.club&&!out.clubName)out.clubName="Your Club";
+  if(out.club&&!out.groundName)out.groundName=(out.clubName||"Club").split(" ")[0]+" Park";
+  if(!out.compTab)out.compTab="league";
+  if(!out.weather||!WEATHER[out.weather])out.weather="clear";
+  if(!out.form||!FORMS.some(f=>f.n===out.form))out.form="Hawkshead";
+  if(!TEMPOS[out.tempo])out.tempo="balanced";
+  if(!BTARGETS[out.btarget])out.btarget="chasers";
+  if(!TRAIN[out.training])out.training="tactics";
+  if(!SPONSORS.some(x=>x.id===out.sponsor))out.sponsor="s0";
+  out.sf=clamp(out.sf||3,1,5);
+  out.price=clamp(out.price||8,4,15);
+  out.tier=clamp(out.tier||0,0,3);
+  out.acad=clamp(out.acad||0,0,3);
+  return out;}
+function load(){
+  const d=store.load("save");
+  if(!d||!d.st)return false;
+  st=migrate(d.st);
+  squad=d.squad||[];market=d.market||[];fas=d.fas||[];prospects=d.prospects||[];
+  clubsState=d.clubs||null;uid=d.uid||0;
+  /* players saved before ceilings existed have no potTrue — give them one */
+  const r=new SeededRandom(hashStr("migrate|"+(st.clubName||"club")));
+  const fix=p=>{if(p.potTrue===undefined){
+    const h=p.age<20?12:p.age<24?8:p.age<28?4:p.age<32?2:0;
+    p.potTrue=clamp(rate(p)+h,rate(p),99);}
+    if(p.morale===undefined)p.morale=60;
+    if(p.contract===undefined)p.contract={wks:20,wage:Math.round(value(p)*.005)};
+    if(p.age===undefined)p.age=24+Math.floor(r.next()*6);};
+  squad.forEach(fix);market.forEach(fix);fas.forEach(fix);prospects.forEach(fix);
+  if(clubsState)clubsState.forEach(c=>(c.players||[]).forEach(fix));
+  return true;}
+
+/* ================= setup ================= */
+function startClub(id,customName){
+  const arch=CLUBS.find(c=>c.id===id);
+  const name=(customName||"").trim()||arch.n;
+  const r=new SeededRandom(hashStr(id+"|"+name+"|"+Date.now()));
+  clubsState=CLUBS.map(c=>({id:c.id,n:c.id===id?name:c.n,
+    players:c.id===id?buildFromArchetype(arch,r):buildRoster(c.id,r),
+    w:0,d:0,l:0,pts:0,gf:0,ga:0}));
+  const me=clubById(id);
+  st.clubName=name;st.style=arch.style;
+  st.groundName=name.split(" ")[0]+" Park";
+  st.club=id;st.cash=arch.budget;
+  squad=me.players;
+  const avg=squad.reduce((s,p)=>s+rate(p),0)/squad.length;
+  st.rep=clamp(Math.round(20+(avg-70)),10,60);
+  market=[mkTarget(r),mkTarget(r),mkTarget(r)];
+  fas=[mkFreeAgent(r),mkFreeAgent(r)];
+  prospects=[];
+  rollOffers(r);
+  seedTrophy();
+  st.weather=rollWeather(r);
+  autoPick();
+  st.screen="comps";
+  st.founded=true;
+  st.locked=!st.sandbox;
+  st.last="founded "+name+" \u2014 contracted to the end of the season";
+  save();}
+
+/* ================= handlers ================= */
+document.getElementById("app").addEventListener("click",ev=>{
+  const el=ev.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v,id=el.dataset.id;
+  switch(a){
+  case "mode":
+    if(v==="sandbox"){
+      st.mode="solo";st.sandbox=true;st.screen="name";
+      st.last="sandbox \u2014 no contract, fresh rolls every match";break;}
+    if(v==="multi"){
+      queueModal({title:"Multiplayer",
+        q:"Multiplayer needs the season server running (Express + Postgres, matchday cron on "+
+          "Tuesdays). The client is wired for it \u2014 APIStore and the deterministic seeded "+
+          "simulation are both in this file \u2014 but there is no server to talk to yet. "+
+          "Solo campaign is fully playable now.",
+        opts:[["Play solo instead",0,"",0]],
+        onPick:function(){st.mode="solo";st.screen="name";paint();}});
+      return;}
+    st.mode="solo";
+    /* Competitions is the home screen — a resumed save always opens there rather than
+       wherever the last session happened to stop. */
+    if(load()&&st.club){st.screen="comps";st.compTab=st.compTab||"league";}
+    else{st.screen="name";}
+    st.last="solo campaign";break;
+  case "namedone":{
+    const nm=($("cname")?$("cname").value:"").trim();
+    if(nm.length<3){$("nameWarn").innerHTML=
+      '<span style="color:var(--amber)">Give the club a name of at least three characters.</span>';
+      return;}
+    st.clubName=nm;st.screen="team";
+    st.last="founding "+nm;break;}
+  case "pick":{
+    startClub(v,st.clubName);break;}
+  case "rollname":{
+    const A=["Hollowbeck","Marlowe","Ravenscar","Duskwater","Stormpike","Greyfen","Ashvale",
+      "Thistledown","Northwyke","Cobbleford"];
+    const B=["Harriers","Kestrels","Wanderers","Rovers","Athletic","Falcons","Sentinels",
+      "Ravens","Comets","Vipers"];
+    if($("cname"))$("cname").value=A[Math.floor(Math.random()*A.length)]+" "+
+      B[Math.floor(Math.random()*B.length)];
+    return;}
+  case "nav": st.screen=v;break;
+  case "comptab": st.compTab=v;break;
+  case "sel": st.sel=st.sel===id?null:id;break;
+  case "swap":{
+    const p=squad.find(x=>x.id===id);
+    if(!p)break;
+    if(!p.bench){p.bench=true;st.last=surname(p)+" to the bench";}
+    else{
+      if(!avail(p)){st.last=surname(p)+" is unavailable";break;}
+      if(squad.filter(x=>!x.bench).length>=7){st.last="seven already flying \u2014 bench someone first";break;}
+      p.bench=false;st.last=surname(p)+" starts";}
+    break;}
+  case "sell":{
+    const p=squad.find(x=>x.id===id),c=canSell(p);
+    if(!c.ok){st.last=c.why;break;}
+    const fee=Math.round(value(p)*.7);
+    squad.splice(squad.indexOf(p),1);st.cash+=fee;
+    st.rep=clamp(st.rep-(rate(p)>80?2:0),5,100);
+    st.last="sold "+surname(p)+" for "+money(fee)+(rate(p)>80?" \u2014 the fans are furious":"");
+    autoPick();break;}
+  case "sign":{
+    const p=market.find(x=>x.id===id);
+    if(!p)break;
+    const fee=value(p);
+    if(fee>st.cash){st.last="short by "+money(fee-st.cash);break;}
+    st.cash-=fee;market.splice(market.indexOf(p),1);squad.push(p);
+    st.rep=clamp(st.rep+(rate(p)>80?1:0),5,100);
+    st.last="signed "+p.n+" for "+money(fee);autoPick();break;}
+  case "signfa":{
+    const p=fas.find(x=>x.id===id);
+    if(!p)break;
+    fas.splice(fas.indexOf(p),1);squad.push(p);
+    st.last="signed free agent "+p.n+" on "+money(p.contract.wage)+"/wk";autoPick();break;}
+  case "promote":{
+    const p=prospects.find(x=>x.id===id);
+    if(!p)break;
+    prospects.splice(prospects.indexOf(p),1);
+    p.prospect=false;squad.push(p);
+    st.last="promoted "+p.n+" from the academy";autoPick();break;}
+  case "acad":{
+    if(st.acad>=3)break;
+    const cost=ACAD_BUILD[st.acad+1];
+    if(st.cash<cost){st.last="not enough for the academy";break;}
+    st.cash-=cost;st.acad++;st.last="academy now level "+st.acad;break;}
+  case "com":{
+    if(!st.com)st.com={food:0,shop:0,omni:0,prog:0};
+    const c=COMMERCE[v],lv=st.com[v]||0;
+    if(lv>=3)break;
+    if(st.cash<c.cost[lv+1]){st.last="not enough for that";break;}
+    st.cash-=c.cost[lv+1];st.com[v]=lv+1;
+    st.last=c.n.replace("&amp;","and")+" now level "+st.com[v];break;}
+  case "fac":{
+    const f=FACS[v],lv=st.fac[v];
+    if(lv>=3)break;
+    if(st.cash<f.cost[lv+1]){st.last="not enough for "+f.n.toLowerCase();break;}
+    st.cash-=f.cost[lv+1];st.fac[v]++;st.last=f.n+" upgraded to level "+st.fac[v];break;}
+  case "repair":{
+    if(st.cash<REPAIR_COST||st.condition>=100)break;
+    st.cash-=REPAIR_COST;st.condition=clamp(st.condition+REPAIR_GAIN,0,100);
+    st.last="repairs done \u2014 condition "+Math.round(st.condition)+"%";break;}
+  case "expand":{
+    if(st.tier>=3)break;
+    if(st.condition<EXPAND_MIN){st.last="condition must reach "+EXPAND_MIN+"% first";break;}
+    const cost=EXPAND[st.tier+1];
+    if(st.cash<cost){st.last="short by "+money(cost-st.cash);break;}
+    st.cash-=cost;st.tier++;st.last="ground expanded to "+CAP[st.tier].toLocaleString()+" seats";break;}
+  case "sponsor":{
+    const s=SPONSORS.find(x=>x.id===v);
+    if(!s||st.rep<s.rep)break;
+    st.sponsor=v;st.last="signed with "+s.n;break;}
+  case "offer":{
+    const o=st.offers.find(x=>x.id===id);
+    if(!o||o.taken)break;
+    o.taken=true;st.cash+=o.cash;st.rep=clamp(st.rep+o.rep,5,100);
+    let extra="";
+    if(o.risk&&Math.random()<.12){
+      const p=squad.filter(avail)[Math.floor(Math.random()*squad.filter(avail).length)];
+      if(p){p.inj=2;p.injTxt="a exhibition knock";extra=" \u2014 "+p.n+" got hurt in it";}}
+    st.last="took "+o.n+" ("+money(o.cash)+")"+extra;break;}
+  case "price": st.price=clamp(st.price+(+v),4,15);st.last="ticket price \u00A3"+st.price;break;
+  case "form":
+    if(st.min){st.last="shape locked \u2014 rewatch to change";break;}
+    st.form=v;st.last="shape \u2192 "+v;break;
+  case "aggr": st.ag=!st.ag;st.last="aggression "+(st.ag?"on":"off");break;
+  case "snitchmode": st.snitch=v;st.last="snitch rules \u2192 "+v;break;
+  case "tempo":
+    if(st.min){st.last="tempo locked \u2014 rewatch to change";break;}
+    st.tempo=v;st.last="tempo \u2192 "+TEMPOS[v].n.toLowerCase();break;
+  case "btarget":
+    if(st.min){st.last="instructions locked \u2014 rewatch to change";break;}
+    st.btarget=v;st.last="beaters target "+BTARGETS[v].n.toLowerCase();break;
+  case "shadow":
+    if(st.min){st.last="instructions locked \u2014 rewatch to change";break;}
+    st.shadow=v==="1";st.last=st.shadow?"seeker will shadow theirs":"seeker hunts the snitch";break;
+  case "bribe":{
+    if(st.bribe){st.last="already arranged";break;}
+    if(st.min){st.last="too late \u2014 the match has started";break;}
+    const cost=Math.round(3000+st.rep*90);
+    if(st.cash<cost){st.last="short by "+money(cost-st.cash);break;}
+    st.cash-=cost;st.bribe=true;
+    st.last="a quiet word has been had ("+money(cost)+")";break;}
+  case "train": st.training=v;st.last="training \u2192 "+TRAIN[v].n.toLowerCase();break;
+  case "play":
+    if(st.ended)break;
+    if(!st.min){kickoff();}
+    else if(st.run){clearInterval(pbTimer);pbTimer=null;st.run=false;st.last="paused";}
+    else{st.run=true;playbackResume();st.last="resumed";}
+    break;
+  case "speed":
+    st.speed=st.speed===1?2:st.speed===2?4:1;
+    if(pbTimer){clearInterval(pbTimer);playbackResume();}
+    break;
+  case "rewatch":
+    if(!log)break;
+    clearInterval(pbTimer);pbTimer=null;pbIndex=0;
+    st.min=0;st.hs=0;st.as=0;st.run=true;st.ended=false;
+    $("hl").innerHTML="";
+    playbackResume();st.last="rewatching";break;
+  case "week":{
+    if(st.run){st.last="the match is still going";break;}
+    if(!st.played&&myFixture()&&!st.ended){
+      st.last="you have a fixture this week \u2014 play it or it is forfeit";
+      st.screen="match";break;}
+    settleWeek();
+    if(!resolvePending())
+      { if(notes.length>1)st.last+=" · "+notes.slice(1).join(" · "); }
+    log=null;st.min=0;st.hs=0;st.as=0;st.ended=false;st.run=false;
+    $("hl").innerHTML='<div class="empty">Goals, cards, injuries and the snitch collect here.</div>';
+    $("ltxt").textContent="Teams in the air.";$("lmin").textContent="—";
+    autoPick();
+    st.screen="tactics";
+    break;}
+  case "choose": resolveModal(+el.dataset.i);return;
+  case "reset":
+    if(st.locked){
+      queueModal({title:"Under contract",
+        q:"You are contracted to "+st.clubName+" until the end of season "+st.season+
+          ". Play out the twenty weeks; you can leave at the season review.",
+        opts:[["Understood",0,"",0]]});
+      return;}
+    queueModal({title:"Start again?",q:"This wipes the saved campaign and the cabinet.",
+      opts:[["Keep playing",0,"",0],["Wipe it",0,"",0]],
+      onPick:function(i){if(i===1){store.wipe("save");st=blankState();squad=[];market=[];
+        fas=[];prospects=[];clubsState=null;log=null;st.last="fresh start";}}});
+    return;
+  }
+  save();paint();});
+
+document.getElementById("modal").addEventListener("click",ev=>{
+  const el=ev.target.closest("[data-act]");if(!el)return;
+  if(el.dataset.act==="choose")resolveModal(+el.dataset.i);});
+
+function playbackResume(){clearInterval(pbTimer);pbTimer=setInterval(step,850/st.speed);}
+
+$("sf").addEventListener("input",e=>{st.sf=Math.round(+e.target.value);
+  st.last="seeker focus \u2192 "+st.sf;save();paint();});
+
+/* ================= native shell (Android/Capacitor) ================= */
+/* No-op in a plain browser tab \u2014 window.Capacitor only exists inside the
+   wrapped app. A modal always needs a deliberate tap (its choices carry real
+   consequences, from contract terms to press quotes), so back does nothing
+   while one is open. Otherwise it needs a second press within 2s, so a stray
+   tap never dumps the player out of a campaign mid-week. */
+if(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()){
+  let lastBack=0;
+  window.Capacitor.Plugins.App.addListener("backButton",()=>{
+    if(modalQ.length)return;
+    const now=Date.now();
+    if(now-lastBack<2000){window.Capacitor.Plugins.App.exitApp();}
+    else{lastBack=now;st.last="press back again to exit";paint();}
+  });
+}
+
+/* ================= boot ================= */
+st=blankState();squad=[];market=[];fas=[];prospects=[];clubsState=null;
+if(store.load("save")){st.last="saved campaign found \u2014 pick solo to continue";}
+paint();
+})();
+</script>
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+</script>
+</body>
+</html>

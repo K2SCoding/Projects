@@ -1,0 +1,13 @@
+{
+  "appId": "com.k2scoding.broomstickleague",
+  "appName": "Broomstick League",
+  "webDir": "../web",
+  "backgroundColor": "#0F1620",
+  "android": {
+    "backgroundColor": "#0F1620",
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
